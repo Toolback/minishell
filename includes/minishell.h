@@ -72,4 +72,10 @@ int 	init_data(t_data *data);
 //
 void	free_env(t_env *env);
 
+// builtins /
+// env.c/
+//
+int		ft_env(t_env *env);
+
+
 #endif
