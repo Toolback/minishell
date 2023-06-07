@@ -47,7 +47,7 @@ void    print_env(t_data *data)
     i = 0;
     while(env)
     {
-        printf("env (%d) : \t[%s]\n", i, env->value);
+        // printf("env (%d) : \t[%s]\n", i, env->value);
         printf("env (%d) : \t[%s]\n", i, env->get_joined_env(env));
         env = env->next;
         i++;
@@ -68,6 +68,7 @@ int main(int ac, char **av, char **env) {
     }
 	increment_shell_level(data.env);
     // testing purpose
+    add_new_env(data.env, "test", "SHLVLMEEEE");
     print_env(&data);
 
     // signal(SIGINT, handle_signal);

@@ -55,13 +55,13 @@ char	*get_joined_env(t_env *curr_env);
 //	env/
 //  get_env.c
 //
-t_env   *get_env(char *key, t_env *env_list);
-
+t_env   *get_env_with_key(char *key, t_env *env_list);
+t_env   *get_last_env(t_env *env_list);
 //	env/
 //  set_env.c
 //
 void increment_shell_level(t_env *env_list);
-
+int add_new_env(t_env *env, char *key, char *value);
 //	shell_data/
 //  init_data.c
 //
