@@ -56,26 +56,29 @@ t_token *add_token(char *line, int *i)
 	return (token);
 }
 
-// WIP Set type to enum
-// void	set_token_type(t_token *token, int separator)
-// {
-// 	if (ft_strcmp(token->str, "") == 0)
-// 		token->type = EMPTY;
-// 	else if (ft_strcmp(token->str, ">") == 0 && separator == 0)
-// 		token->type = TRUNC;
-// 	else if (ft_strcmp(token->str, ">>") == 0 && separator == 0)
-// 		token->type = APPEND;
-// 	else if (ft_strcmp(token->str, "<") == 0 && separator == 0)
-// 		token->type = INPUT;
-// 	else if (ft_strcmp(token->str, "|") == 0 && separator == 0)
-// 		token->type = PIPE;
-// 	else if (ft_strcmp(token->str, ";") == 0 && separator == 0)
-// 		token->type = END;
-// 	else if (token->prev == NULL || token->prev->type >= TRUNC)
-// 		token->type = CMD;
-// 	else
-// 		token->type = ARG;
-// }
+void	set_token_type(t_token *token)
+{
+	// if (ft_strcmp(token->str, "") == 0)
+	// 	token->type = EMPTY;
+	if (ft_strcmp(token->str, ">") == 0)
+		token->type = simple_redir_right;
+	else if (ft_strcmp(token->str, "<") == 0)
+		token->type = simple_redir_left;
+	else if (ft_strcmp(token->str, ">>") == 0)
+		token->type = double_redir_right;
+	else if (ft_strcmp(token->str, "<<") == 0)
+		token->type = double_redir_left;
+	else if (ft_strcmp(token->str, "|") == 0)
+		token->type = pipeline;
+	else if (ft_strchr(token->str, '=') != NULL)
+		token->type = variable;
+	else if (token->str[0] == '-')
+		token->type = option_cmd;
+	else if (token->prev == NULL || token->prev->type == pipeline)
+		token->type = cmd;
+	else
+		token->type = arg;
+}
 
 int tokenize(t_data *data, char *line)
 {
@@ -85,7 +88,7 @@ int tokenize(t_data *data, char *line)
 
     i = 0;
     curr = add_token(line, &i);
-	// curr->type = set_token_type(curr,)
+	set_token_type(curr);
     next = NULL;
     data->token = curr;
     while(line[i])
@@ -96,7 +99,7 @@ int tokenize(t_data *data, char *line)
             continue;
         }
         next = add_token(line, &i);
-		// next->type = set_token_type(next,)    
+		set_token_type(next);  
         next->prev = curr;
         next->next = NULL;
         curr->next = next;

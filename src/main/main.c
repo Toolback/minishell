@@ -110,9 +110,11 @@ int main(int ac, char **av, char **env) {
             ft_putendl_fd("Error : Tokenize ", STDERR);
 
         t_token *curr = data.token;
+        int i = 0;
         while(curr)
         {
-            printf("cmd value -> [%s]\n", curr->str);
+            printf("cmd id -> [%d] | value -> [%s] | type -> [%d]\n", i, curr->str, curr->type);
+            i++;
             curr = curr->next;
         }
 

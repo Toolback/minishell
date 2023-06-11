@@ -23,21 +23,15 @@
 
 typedef enum		e_token_type
 {
-	and,
-	or,
-	semicolon,
-	simple_redir_left,
-	simple_redir_right,
-	double_redir_left,
-	double_redir_right,
-	pipeline,
-	option_command,
-	single_quote,
-	double_quote,
-	backslash,
-	literal,
-	variable,
-	space,
+    simple_redir_left,
+    simple_redir_right,
+    double_redir_left,
+    double_redir_right,
+    pipeline,
+    option_cmd,
+    variable,
+    cmd,
+    arg
 }					t_token_type;
 
 typedef struct	s_token
