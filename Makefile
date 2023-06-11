@@ -25,6 +25,8 @@ PARSING = token parsing
 
 UTILS = free
 
+EXECUTION = execute
+
 SRC = $(addsuffix .c, $(addprefix src/ast/, $(AST))) \
 	  $(addsuffix .c, $(addprefix src/builtins/, $(BUILTINS))) \
 	  $(addsuffix .c, $(addprefix src/env/, $(ENV))) \
@@ -33,6 +35,7 @@ SRC = $(addsuffix .c, $(addprefix src/ast/, $(AST))) \
 	  $(addsuffix .c, $(addprefix src/main/, $(MAIN))) \
 	  $(addsuffix .c, $(addprefix src/parsing/, $(PARSING))) \
 	  $(addsuffix .c, $(addprefix src/utils/, $(UTILS))) \
+	  $(addsuffix .c, $(addprefix src/execution/, $(EXECUTION))) \
 
 OBJ = $(SRC:c=o)
 

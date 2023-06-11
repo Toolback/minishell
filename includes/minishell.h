@@ -99,5 +99,7 @@ void	free_env(t_env *env);
 int		ft_env(t_env *env);
 
 void super_parser(t_data data);
+void handle_signal(int sig);
+void super_executer(t_data data);
 
 #endif
