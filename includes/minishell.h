@@ -60,6 +60,7 @@ typedef struct s_data
 	int			exit;
 }               t_data;
 
+
 //	env/
 //  init_env.c
 //
@@ -97,5 +98,6 @@ void	free_env(t_env *env);
 //
 int		ft_env(t_env *env);
 
+void super_parser(t_data data);
 
 #endif

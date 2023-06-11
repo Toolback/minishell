@@ -21,7 +21,7 @@ SHELL_DATA = init_data
 
 MAIN = main
 
-PARSING = token
+PARSING = token parsing
 
 UTILS = free
 
