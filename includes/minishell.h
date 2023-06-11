@@ -15,7 +15,7 @@
 # include <signal.h>
 
 #define MAX_CMD_LEN 256
-#define MAX_NUM_ARGS 10
+#define MAX_NUM_ARGS 1024
 # define STDIN 0
 # define STDOUT 1
 # define STDERR 2
