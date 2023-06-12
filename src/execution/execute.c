@@ -1,174 +1,139 @@
-# include "minishell.h"
+#include "minishell.h"
 
-char **construct_envp(t_env *env)
-{
-    int count = 0;
-    t_env *temp = env;
-    while (temp) // Count the number of elements in the linked list
-    {
-        count++;
-        temp = temp->next;
-    }
-
-    char **envp = malloc(sizeof(char*) * (count + 1));
-    if (!envp) // Check if malloc failed
-    {
-        perror("malloc");
-        exit(1);
-    }
-
-    temp = env;
-    for (int i = 0; i < count; i++)
-    {
-        envp[i] = temp->get_joined_env(temp);
-        temp = temp->next;
-    }
-    envp[count] = NULL; // The envp array must be null-terminated
-
-    return envp;
-}
-
-// Function to handle commands and arguments
-char **construct_cmd_args(t_token *token)
-{
-    int arg_count = 0;
-    t_token *tmp = token->next;  // start from the next token, as current is a cmd
-
-    while (tmp && tmp->type == arg)  // Only count tokens of type arg
-    {
-        arg_count++;
-        tmp = tmp->next;
-    }
-
-    char **args = malloc(sizeof(char*) * (arg_count + 2));  // +2 for cmd itself and NULL at the end
-    args[0] = token->str;  // The first argument is always the command itself
-    for (int i = 0; i < arg_count; i++)  // Assign arguments
-    {
-        token = token->next;
-        args[i+1] = token->str;
-    }
-    args[arg_count+1] = NULL;
-
-    return args;
-}
-
-
-
-
-// Function to execute a single command with execve
-void exec_single_command(t_token *token, t_env *env)
-{
-    char *cmd = token->str;
-    token = token->next;
-    char **args = construct_cmd_args(token);
-
-    char **envp = construct_envp(env); // Assume you have a function to construct envp from env linked list
-
-    execve(cmd, args, envp);
-
-    perror("Command not found"); // If we reached here, execve failed
-    exit(1);
-}
-
-// Function to create a pipe and fork a child process to execute a command
-void fork_and_exec(t_token *token, t_env *env, int input_fd, int output_fd)
-{
-    int pid = fork();
-
-    if (pid == 0)
-    {
-        if (input_fd != STDIN_FILENO) // If we have input redirection
-        {
-            dup2(input_fd, STDIN_FILENO);
-            close(input_fd);
-        }
-        if (output_fd != STDOUT_FILENO) // If we have output redirection
-        {
-            dup2(output_fd, STDOUT_FILENO);
-            close(output_fd);
-        }
-
-        exec_single_command(token, env);
-    }
-}
-
+#define MAX_ARGS 50
 void execute_command(t_data data)
 {
-    int input_fd = STDIN_FILENO;
-    int output_fd = STDOUT_FILENO;
-    int fd[2]; // For pipes
+    int fds[2];
+    int in = 0;
+    int out;
+    t_token *t = data.token;
+    pid_t pid;
+    int child_processes = 0;
 
-    t_token *token = data.token;
-    while (token)
+    while(t != NULL)
     {
-        switch (token->type)
+        out = 1;  // Reset 'out' for each command
+
+        if(t->type == cmd) 
         {
-            case simple_redir_left:
-                input_fd = open(token->next->str, O_RDONLY);
-                token = token->next->next;
-                break;
-            case simple_redir_right:
-                output_fd = open(token->next->str, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-                token = token->next->next;
-                break;
-            case double_redir_left:
-                // Need additional implementation
-                break;
-            case double_redir_right:
-                output_fd = open(token->next->str, O_WRONLY | O_CREAT | O_APPEND, 0644);
-                token = token->next->next;
-                break;
-            case pipeline:
-                pipe(fd);
-                fork_and_exec(token, data.env, input_fd, fd[1]);
-                if (input_fd != STDIN_FILENO) {
-                    close(input_fd);
-                }
-                close(fd[1]); // We don't need the write end of the pipe
-                input_fd = fd[0]; // The next command will read from here
-                token = token->next;
-                break;
-            case cmd:
-                // If the next token is a pipeline, we are not in the last command yet
-                if (token->next && token->next->type == pipeline)
+            char *args[MAX_ARGS] = {t->str};
+            int i = 1;
+            while(t->next && t->next->type != pipeline && t->next->type != simple_redir_right && 
+                  t->next->type != simple_redir_left && t->next->type != double_redir_right && 
+                  t->next->type != double_redir_left && i < MAX_ARGS - 1)
+            {
+                t = t->next;
+                args[i++] = t->str;
+            }
+            args[i] = NULL;
+
+            // Handle redirections after command args
+            if(t->next && (t->next->type == simple_redir_right || t->next->type == double_redir_right ||
+                           t->next->type == simple_redir_left))
+            {
+                t = t->next;
+                if(t->type == simple_redir_right)
                 {
-                    fork_and_exec(token, data.env, input_fd, output_fd);
+                    t = t->next;
+                    out = open(t->str, O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IRGRP | S_IWGRP | S_IWUSR);
                 }
-                else
+                else if(t->type == double_redir_right)
                 {
-                    // This is the last command, it should write to the original output
-                    fork_and_exec(token, data.env, input_fd, STDOUT_FILENO);
+                    t = t->next;
+                    out = open(t->str, O_WRONLY | O_APPEND | O_CREAT, S_IRUSR | S_IRGRP | S_IWGRP | S_IWUSR);
                 }
-                token = NULL; // Finish execution
-                break;
-            default:
-                token = token->next;
-                break;
+                else if(t->type == simple_redir_left)
+                {
+                    t = t->next;
+                    in = open(t->str, O_RDONLY);
+                }
+            }
+
+            // Setup pipeline
+            pipe(fds);
+
+            if((pid = fork()) == -1) 
+            {
+                perror("fork");
+                exit(1);
+            }
+
+            if(pid == 0)
+            {
+                // Redirect stdin if necessary
+                if(in != 0)
+                {
+                    dup2(in, 0);
+                    close(in);
+                }
+
+                // Redirect stdout if necessary
+                if(out != 1)
+                {
+                    dup2(out, 1);
+                    close(out);
+                }
+
+                // Redirect stdout to pipe if it's not the last command
+                if(t->next && t->next->type == pipeline)
+                {
+                    dup2(fds[1], 1);
+                }
+                close(fds[0]);
+                close(fds[1]);
+
+                char **envp = NULL;  // Prepare environment variables if required
+                if(execve(args[0], args, envp) == -1)
+                {
+                    perror("execve");
+                    printf("Command not found\n");
+                    exit(EXIT_FAILURE);
+                }
+                exit(EXIT_SUCCESS);
+            }
+            else 
+            {
+                child_processes++; // Keep track of how many child processes we have
+                close(fds[1]); // Close write end of the pipe immediately
+
+                if(in != 0)
+                {
+                    close(in); // Close the input file descriptor from previous loop
+                }
+
+                in = fds[0]; // Keep track of the input for the next command
+            }
         }
+        t = t->next;
     }
 
-    // Close any remaining pipes
-    if (input_fd != STDIN_FILENO)
+    if(in != 0)
     {
-        close(input_fd);
-    }
-    if (output_fd != STDOUT_FILENO)
-    {
-        close(output_fd);
+        close(in);
     }
 
-    // Wait for all children to finish
-    while (wait(NULL) > 0);
+    // Wait for all child processes to finish
+    for(int i = 0; i < child_processes; i++)
+    {
+        wait(NULL);
+    }
 }
 
 
 
-char *getAbsoluteCommandPath(const char *command) {
+
+
+
+
+char *getAbsoluteCommandPath(const char *command)
+{
     // Replace these paths with the actual absolute paths for your system
     if (strcmp(command, "cat") == 0)
         return "/bin/cat";
     else if (strcmp(command, "grep") == 0)
         return "/usr/bin/grep";
+    else if (strcmp(command, "yes") == 0)
+        return "/usr/bin/yes";
     else if (strcmp(command, "ls") == 0)
         return "/bin/ls";
     else if (strcmp(command, "wc") == 0)
@@ -179,46 +144,97 @@ char *getAbsoluteCommandPath(const char *command) {
 
 void super_executer(t_data data)
 {
-    // Create the s_token for the command "ls -a"
-    t_token *token1 = (t_token *)malloc(sizeof(t_token));
-    token1->str = getAbsoluteCommandPath("cat");
-    token1->type = cmd;
-    token1->prev = NULL;
-    token1->next = NULL;
+// Manually create and link tokens
+t_token *ls_cmd = malloc(sizeof(t_token));
+ls_cmd->str = strdup("/bin/ls");   // Replace with actual path to ls
+ls_cmd->type = cmd;
+ls_cmd->prev = NULL;
 
-    t_token *token2 = (t_token *)malloc(sizeof(t_token));
-    token2->str = "<";
-    token2->type = simple_redir_left;
-    token2->prev = token1;
-    token2->next = NULL;
-    token1->next = token2;
+t_token *ls_arg = malloc(sizeof(t_token));
+ls_arg->str = strdup("-l");
+ls_arg->type = arg;
+ls_arg->prev = ls_cmd;
 
-    t_token *token3 = (t_token *)malloc(sizeof(t_token));
-    token3->str = "Makefile";
-    token3->type = arg;
-    token3->prev = token2;
-    token3->next = NULL;
-    token2->next = token3;
+ls_cmd->next = ls_arg;
+
+t_token *pipe1 = malloc(sizeof(t_token));
+pipe1->str = strdup("|");
+pipe1->type = pipeline;
+pipe1->prev = ls_arg;
+
+ls_arg->next = pipe1;
+
+t_token *grep_cmd = malloc(sizeof(t_token));
+grep_cmd->str = strdup("/usr/bin/grep");   // Replace with actual path to grep
+grep_cmd->type = cmd;
+grep_cmd->prev = pipe1;
+
+pipe1->next = grep_cmd;
+
+t_token *grep_arg = malloc(sizeof(t_token));
+grep_arg->str = strdup(".txt");
+grep_arg->type = arg;
+grep_arg->prev = grep_cmd;
+
+grep_cmd->next = grep_arg;
+
+t_token *pipe2 = malloc(sizeof(t_token));
+pipe2->str = strdup("|");
+pipe2->type = pipeline;
+pipe2->prev = grep_arg;
+
+grep_arg->next = pipe2;
+
+t_token *wc_cmd = malloc(sizeof(t_token));
+wc_cmd->str = strdup("/usr/bin/wc");   // Replace with actual path to wc
+wc_cmd->type = cmd;
+wc_cmd->prev = pipe2;
+
+pipe2->next = wc_cmd;
+
+t_token *wc_arg = malloc(sizeof(t_token));
+wc_arg->str = strdup("-l");
+wc_arg->type = arg;
+wc_arg->prev = wc_cmd;
+
+wc_cmd->next = wc_arg;
+
+t_token *redir_right = malloc(sizeof(t_token));
+redir_right->str = strdup("<");
+redir_right->type = simple_redir_left;
+redir_right->prev = wc_arg;
+
+wc_arg->next = redir_right;
+
+t_token *file_name = malloc(sizeof(t_token));
+file_name->str = strdup("file_count.txt");
+file_name->type = arg;
+file_name->prev = redir_right;
+
+redir_right->next = file_name;
+file_name->next = NULL;   // This is the end of the linked list
+
+data.token = ls_cmd;   // Starting point of the linked list
 
 
-    data.token = token1;
 
+    t_token *curr = data.token;
+    int i = 0;
     char sign[MAX_CMD_LEN];
-    if (fgets(sign, MAX_CMD_LEN, stdin) == NULL) {
+
+    if (fgets(sign, MAX_CMD_LEN, stdin) == NULL)
+    {
         // L'utilisateur a tapé CTRL+D
         printf("Exit <3\n");
         exit(0);
     }
-    sign[strcspn(sign, "\n")] = 0;  // Enlever le retour à la ligne
+    sign[strcspn(sign, "\n")] = 0; // Enlever le retour à la ligne
 
-            t_token *curr = data.token;
-        int i = 0;
-
-        while(curr)
-        {
-            printf("cmd id -> [%d] | value -> [%s] | type -> [%d]\n", i, curr->str, curr->type);
-            i++;
-            curr = curr->next;
-        }    
+    while (curr)
+    {
+        printf("cmd id -> [%d] | value -> [%s] | type -> [%d]\n", i, curr->str, curr->type);
+        i++;
+        curr = curr->next;
+    }
     execute_command(data);
 }

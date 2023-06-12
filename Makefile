@@ -2,7 +2,7 @@ NAME = minishell
 
 CC = gcc
 
-CFLAGS = -Wall -Wextra -Werror -g -I includes/ -I libft/includes/
+CFLAGS = -g -I includes/ -I libft/includes/
 
 LIBFT = -L libft -lft
 
