@@ -72,8 +72,6 @@ void	set_token_type(t_token *token)
 		token->type = pipeline;
 	else if (ft_strchr(token->str, '=') != NULL)
 		token->type = variable;
-	else if (token->str[0] == '-')
-		token->type = option_cmd;
 	else if (token->prev == NULL || token->prev->type == pipeline)
 		token->type = cmd;
 	else
@@ -87,9 +85,10 @@ int tokenize(t_data *data, char *line)
     int i;
 
     i = 0;
-    curr = add_token(line, &i);
-	set_token_type(curr);
     next = NULL;
+    curr = add_token(line, &i);
+	curr->prev = NULL;
+	set_token_type(curr);
     data->token = curr;
     while(line[i])
     {
@@ -99,8 +98,8 @@ int tokenize(t_data *data, char *line)
             continue;
         }
         next = add_token(line, &i);
-		set_token_type(next);  
         next->prev = curr;
+		set_token_type(next);  
         next->next = NULL;
         curr->next = next;
         curr = next;

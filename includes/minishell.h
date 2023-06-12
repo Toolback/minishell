@@ -28,7 +28,6 @@ typedef enum		e_token_type
     double_redir_left,
     double_redir_right,
     pipeline,
-    option_cmd,
     variable,
     cmd,
     arg

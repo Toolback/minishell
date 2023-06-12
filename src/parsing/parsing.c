@@ -41,7 +41,10 @@ void super_parser(t_data data)
         char *line;
     	ft_putstr_fd("\033[0;36m\033[1mminishell ▸ \033[0m", STDERR);
         if (get_next_line(0, &line) == -2 && (data.exit = 1))
+        {
 		    ft_putendl_fd("exit by GNL", STDERR);
+            exit(0);
+        }
         if (sanitise_args(line) != 0)
         {
             free(line);

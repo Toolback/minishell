@@ -23,8 +23,8 @@ int main(int ac, char **av, char **env) {
     signal(SIGINT, handle_signal);
     while (data.exit == 0) {
         printf("minishell ▸ ");
-        //super_parser(data);
-        super_executer(data);
+        super_parser(data);
+        // super_executer(data);
     }
     // exit_shell(&data);
     return (0);
