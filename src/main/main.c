@@ -26,6 +26,7 @@ int main(int ac, char **av, char **env) {
         super_parser(data);
         // super_executer(data);
     }
+    // rl_clear_history();
     // exit_shell(&data);
     return (0);
 }

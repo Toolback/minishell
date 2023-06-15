@@ -27,33 +27,35 @@ int		next_alloc(char *line, int *i)
 	return (j - count + 1);
 }
 
-t_token *add_token(char *line, int *i)
-{
+t_token *set_token_value(char *line, int *i) {
     t_token *token;
-    char    c;
-    int     j;
-
+    char c;
+    int j;
+    
     c = ' ';
     j = 0;
 	if (!(token = malloc(sizeof(t_token)))
 	|| !(token->str = malloc(sizeof(char) * next_alloc(line, i))))
 		return (NULL);
-    while (line[*i] && line[*i] != ' ')
-	{
-		if (c == ' ' && (line[*i] == '\'' || line[*i] == '\"'))
-			c = line[(*i)++];
-		else if (c != ' ' && line[*i] == c)
-		{
-			c = ' ';
-			(*i)++;
-		}
-		else if (line[*i] == '\\' && (*i)++)
-			token->str[j++] = line[(*i)++];
-		else
-			token->str[j++] = line[(*i)++];
-	}
-	token->str[j] = '\0';
-	return (token);
+    // Parse the line
+    while (line[*i] && line[*i] != ' '|| c != ' ') {
+        if (c == ' ' && (line[*i] == '\'' || line[*i] == '\"')) {
+            // If current character is a quote and c is a space, set c to the quote and move to the next character
+            c = line[(*i)++];
+        } else if (c != ' ' && line[*i] == c) {
+            // If current character is the closing quote and c is not a space, set c back to a space and move to the next character
+            c = ' ';
+            (*i)++;
+        } else if (line[*i] == '\\' && (*i)++) {
+            // If current character is a backslash, skip it and add the next character to the token string
+            token->str[j++] = line[(*i)++];
+        } else {
+            // Otherwise, add the current character to the token string
+            token->str[j++] = line[(*i)++];
+        }
+    }
+    token->str[j] = '\0';
+    return token;
 }
 
 void	set_token_type(t_token *token)
@@ -78,6 +80,12 @@ void	set_token_type(t_token *token)
 		token->type = arg;
 }
 
+void	skip_space(const char *str, int *i)
+{
+	while ((str[*i] == ' ' || str[*i] == '\t') || (str[*i] == '\r' || str[*i] == '\v' || str[*i] == '\f'))
+		(*i)++;
+}
+
 int tokenize(t_data *data, char *line)
 {
     t_token *curr;
@@ -86,7 +94,7 @@ int tokenize(t_data *data, char *line)
 
     i = 0;
     next = NULL;
-    curr = add_token(line, &i);
+    curr = set_token_value(line, &i);
 	curr->prev = NULL;
 	set_token_type(curr);
     data->token = curr;
@@ -97,7 +105,7 @@ int tokenize(t_data *data, char *line)
             i++;
             continue;
         }
-        next = add_token(line, &i);
+        next = set_token_value(line, &i);
         next->prev = curr;
 		set_token_type(next);  
         next->next = NULL;

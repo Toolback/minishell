@@ -84,8 +84,11 @@ int 	init_data(t_data *data);
 
 // parsing /
 // token.c
-t_token *add_token(char *line, int *i);
+int		next_alloc(char *line, int *i);
+t_token *set_token_value(char *line, int *i);
+void	set_token_type(t_token *token);
 int tokenize(t_data *data, char *line);
+void	skip_space(const char *str, int *i);
 
 //	utils/
 //  free.c

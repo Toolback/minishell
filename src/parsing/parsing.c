@@ -36,6 +36,7 @@ int sanitise_args(char *line)
 }
 
 
+
 void super_parser(t_data data)
 {
         char *line;
@@ -52,7 +53,7 @@ void super_parser(t_data data)
         }
         if (tokenize(&data, line) != 0)
             ft_putendl_fd("Error : Tokenize ", STDERR);
-
+        // add_history(line);
         t_token *curr = data.token;
         int i = 0;
 
