@@ -62,5 +62,22 @@ void super_parser(t_data data)
             printf("cmd id -> [%d] | value -> [%s] | type -> [%d]\n", i, curr->str, curr->type);
             i++;
             curr = curr->next;
-        }    
+        } 
+        curr = data.token;
+        while(curr)
+        {
+            if (curr->type == variable)
+            {
+                add_new_env(data.env, parse_env_key(curr->str), parse_env_value(curr->str));
+            }
+            curr = curr->next;
+        } 
+        t_env *curr2 = data.env;
+        while(curr2)
+        {
+            printf("ENV -> [%s]\n", curr2->get_joined_env(curr2));
+            curr2 = curr2->next;
+        }
+        
+
 }

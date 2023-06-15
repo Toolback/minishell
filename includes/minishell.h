@@ -13,6 +13,8 @@
 # include <limits.h>
 # include <errno.h>
 # include <signal.h>
+# include <readline/readline.h>
+# include <readline/history.h>
 
 #define MAX_CMD_LEN 256
 #define MAX_NUM_ARGS 1024
@@ -63,7 +65,8 @@ typedef struct s_data
 //	env/
 //  init_env.c
 //
-
+char	*parse_env_key(char *env_val);
+char	*parse_env_value(char *env_val);
 int		init_env(t_data *data, char **local_env, int flag);
 char	*get_joined_env(t_env *curr_env);
 
