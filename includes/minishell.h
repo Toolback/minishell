@@ -30,6 +30,7 @@ typedef enum		e_token_type
     double_redir_left,
     double_redir_right,
     pipeline,
+	new_variable,
     variable,
     cmd,
     arg
@@ -47,7 +48,7 @@ typedef struct	s_env
 {
 	char			*key;
 	char			*value;
-	char				*(*get_joined_env)(struct s_env*);
+	char			*(*get_joined_env)(struct s_env*);
 	struct s_env	*next;
 }				t_env;
 
@@ -78,8 +79,8 @@ t_env   *get_last_env(t_env *env_list);
 //	env/
 //  set_env.c
 //
-void increment_shell_level(t_env *env_list);
-int add_new_env(t_env *env, char *key, char *value);
+void    increment_shell_level(t_env *env_list);
+int     add_new_env(t_env *env, char *key, char *value);
 //	shell_data/
 //  init_data.c
 //
@@ -90,7 +91,8 @@ int 	init_data(t_data *data);
 int		next_alloc(char *line, int *i);
 t_token *set_token_value(char *line, int *i);
 void	set_token_type(t_token *token);
-int tokenize(t_data *data, char *line);
+int     delete_token(t_data *data, t_token *curr);
+int     tokenize(t_data *data, char *line);
 void	skip_space(const char *str, int *i);
 
 //	utils/
@@ -103,8 +105,8 @@ void	free_env(t_env *env);
 //
 int		ft_env(t_env *env);
 
-void super_parser(t_data data);
-void handle_signal(int sig);
-void super_executer(t_data data);
+void    super_parser(t_data data);
+void    handle_signal(int sig);
+void    super_executer(t_data data);
 
 #endif

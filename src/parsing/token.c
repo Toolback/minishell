@@ -58,6 +58,40 @@ t_token *set_token_value(char *line, int *i) {
     return token;
 }
 
+int delete_token(t_data *data, t_token *curr)
+{
+	int status;
+
+	status = 0;
+	if(curr)
+	{
+		// curr is in the middle of the list, we have a prev and next token to relink to
+		if(curr->next && curr->prev)
+		{
+			curr->prev->next = curr->next;
+			curr->next->prev = curr->prev;
+		}
+		// curr is the first token in the list
+		else if(curr->next && curr->prev == NULL)
+		{
+			curr->next->prev = NULL;
+			data->token = curr->next;
+		}
+		// curr is the last token in the list
+		else if(curr->next == NULL && curr->prev)
+		{
+			curr->prev->next = NULL;
+		}
+		// curr is the only token in the list (give back prompt)
+		else if(curr->next == NULL && curr->prev == NULL)
+			data->token = NULL;
+		// free_token(curr);
+	}
+	else
+		return (1);
+	return (0);
+}
+
 void	set_token_type(t_token *token)
 {
 	// if (ft_strcmp(token->str, "") == 0)
@@ -73,6 +107,8 @@ void	set_token_type(t_token *token)
 	else if (ft_strcmp(token->str, "|") == 0)
 		token->type = pipeline;
 	else if (ft_strchr(token->str, '=') != NULL)
+		token->type = new_variable;
+	else if (ft_strchr(token->str, '$') != NULL && ft_strchr(token->str, '=') == NULL)
 		token->type = variable;
 	else if (token->prev == NULL || token->prev->type == pipeline)
 		token->type = cmd;

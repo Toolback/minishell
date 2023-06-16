@@ -55,21 +55,35 @@ void super_parser(t_data data)
             ft_putendl_fd("Error : Tokenize ", STDERR);
         // add_history(line);
         t_token *curr = data.token;
-        int i = 0;
+        while(curr)
+        {
+            if (curr->type == new_variable) // new env received, add it to local env
+            {
+                add_new_env(data.env, parse_env_key(curr->str), parse_env_value(curr->str));
+                delete_token(&data, curr);
+            }
+            if (curr->type == variable)
+            {
+                t_env *curr_env = get_env_with_key(curr->str, data.env);
+                if (curr_env->key == curr->str) // env found - token variable replace with env value
+                {
 
+                }
+                else // no env occurance found, replace token variable with empty string 
+                {
+
+                }
+                // free(curr->str);
+                // curr->str = (char *)malloc(sizeof(char) * ) // WIP
+            }
+            curr = curr->next;
+        } 
+        curr = data.token;
+        int i = 0;
         while(curr)
         {
             printf("cmd id -> [%d] | value -> [%s] | type -> [%d]\n", i, curr->str, curr->type);
             i++;
-            curr = curr->next;
-        } 
-        curr = data.token;
-        while(curr)
-        {
-            if (curr->type == variable)
-            {
-                add_new_env(data.env, parse_env_key(curr->str), parse_env_value(curr->str));
-            }
             curr = curr->next;
         } 
         t_env *curr2 = data.env;
