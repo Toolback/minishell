@@ -68,7 +68,10 @@ int	init_env(t_data *data, char **local_env, int flag)
 	int		i;
 
 	if (!local_env | !local_env[0])
+	{
+		printf("Better to have ENV to start a shell, right ?");
 		return (1);
+	}
 	if (!(env = malloc(sizeof(t_env))))
 		return (1);
 	env->key = parse_env_key(local_env[0]);

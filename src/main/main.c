@@ -6,6 +6,8 @@ void handle_signal(int sig) {
         printf("\nminishell2 ▸ ");
         fflush(stdout);
     }
+
+    printf("SIG RETRIEVED : [%d]", sig);
 }
 
 int main(int ac, char **av, char **env) {

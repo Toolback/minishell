@@ -62,19 +62,21 @@ void super_parser(t_data data)
                 add_new_env(data.env, parse_env_key(curr->str), parse_env_value(curr->str));
                 delete_token(&data, curr);
             }
-            if (curr->type == variable)
+            else if (curr->type == variable) // variable to replace by env in cmd line
             {
-                t_env *curr_env = get_env_with_key(curr->str, data.env);
-                if (curr_env->key == curr->str) // env found - token variable replace with env value
+                t_env *curr_env = get_env_with_key((curr->str + 1), data.env);
+                if (ft_strcmp(curr_env->key, (curr->str + 1)) == 0) // env found - token variable replace with env value
                 {
+                    free(curr->str);
+                    curr->str = curr_env->value;
 
                 }
-                else // no env occurance found, replace token variable with empty string 
+                if (curr_env == NULL) // no env occurance found, replace token variable with empty string 
                 {
-
+                    printf("\nNO VARIABLE IN ENV FOUND\n");
+                    free(curr->str);
+                    curr->str = "";
                 }
-                // free(curr->str);
-                // curr->str = (char *)malloc(sizeof(char) * ) // WIP
             }
             curr = curr->next;
         } 
@@ -82,16 +84,16 @@ void super_parser(t_data data)
         int i = 0;
         while(curr)
         {
-            printf("cmd id -> [%d] | value -> [%s] | type -> [%d]\n", i, curr->str, curr->type);
+            printf("\ncmd id -> [%d] | value -> [%s] | type -> [%d]\n", i, curr->str, curr->type);
             i++;
             curr = curr->next;
         } 
-        t_env *curr2 = data.env;
-        while(curr2)
-        {
-            printf("ENV -> [%s]\n", curr2->get_joined_env(curr2));
-            curr2 = curr2->next;
-        }
+        // t_env *curr2 = data.env;
+        // while(curr2)
+        // {
+        //     printf("ENV -> [%s]\n", curr2->get_joined_env(curr2));
+        //     curr2 = curr2->next;
+        // }
         
 
 }
