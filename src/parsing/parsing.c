@@ -35,6 +35,27 @@ int sanitise_args(char *line)
     return (0);
 }
 
+// FREE LEAKS WIP
+char    *get_bin(char *cmd, t_env *env_list)
+{
+    int     i;
+    t_env   *curr_env;
+    char    **env_arr;
+    char    *binary_path;
+    char    *temp;
+
+    i = -1;
+    curr_env = get_env_with_key("PATH", env_list);
+    env_arr = ft_split(curr_env->value, ':');
+    while(env_arr[++i])
+    {
+        temp = ft_strjoin(env_arr[i], "/");
+        binary_path = ft_strjoin(temp, cmd);
+        if(access(binary_path, X_OK))
+            return(binary_path); // we found the correct path for given CMD
+    }
+    return (NULL);
+}
 
 
 void super_parser(t_data data)
@@ -78,8 +99,26 @@ void super_parser(t_data data)
                     curr->str = "";
                 }
             }
+            else if (curr->type == cmd) // bin received, check for path
+            {
+                if (ft_strchr(curr->str, '/') == NULL) // bin with no path, fetch ENV paths
+                {
+                    curr->str = get_bin(curr->str, data.env); //NULL if no path found
+                    // if(curr->str != NULL)
+                    //     printf("Bin Found : [%s]", curr->str);
+                    // else
+                    //     printf("No Bin Path Found in ENV");
+                }
+                if(curr->str == NULL || access(curr->str, X_OK) != 0) // path is not executable
+                {
+                    free(curr->str);
+                    curr->str = "Path for cmd not Found !";
+                }
+            }
             curr = curr->next;
         } 
+
+
         curr = data.token;
         int i = 0;
         while(curr)
