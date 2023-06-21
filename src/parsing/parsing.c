@@ -58,11 +58,11 @@ char    *get_bin(char *cmd, t_env *env_list)
 }
 
 
-void super_parser(t_data data)
+void super_parser(t_data *data)
 {
         char *line;
     	ft_putstr_fd("\033[0;36m\033[1mminishell ▸ \033[0m", STDERR);
-        if (get_next_line(0, &line) == -2 && (data.exit = 1))
+        if (get_next_line(0, &line) == -2 && (data->exit = 1))
         {
 		    ft_putendl_fd("exit by GNL", STDERR);
             exit(0);
@@ -72,20 +72,20 @@ void super_parser(t_data data)
             free(line);
             ft_putendl_fd("Error : Sanitise Args, wrong args ? ", STDERR);
         }
-        if (tokenize(&data, line) != 0)
+        if (tokenize(data, line) != 0)
             ft_putendl_fd("Error : Tokenize ", STDERR);
         // add_history(line);
-        t_token *curr = data.token;
+        t_token *curr = data->token;
         while(curr)
         {
             if (curr->type == new_variable) // new env received, add it to local env
             {
-                add_new_env(data.env, parse_env_key(curr->str), parse_env_value(curr->str));
-                delete_token(&data, curr);
+                add_new_env(data->env, parse_env_key(curr->str), parse_env_value(curr->str));
+                delete_token(data, curr);
             }
             else if (curr->type == variable) // variable to replace by env in cmd line
             {
-                t_env *curr_env = get_env_with_key((curr->str + 1), data.env);
+                t_env *curr_env = get_env_with_key((curr->str + 1), data->env);
                 if (ft_strcmp(curr_env->key, (curr->str + 1)) == 0) // env found - token variable replace with env value
                 {
                     free(curr->str);
@@ -103,7 +103,7 @@ void super_parser(t_data data)
             {
                 if (ft_strchr(curr->str, '/') == NULL) // bin with no path, fetch ENV paths
                 {
-                    curr->str = get_bin(curr->str, data.env); //NULL if no path found
+                    curr->str = get_bin(curr->str, data->env); //NULL if no path found
                     // if(curr->str != NULL)
                     //     printf("Bin Found : [%s]", curr->str);
                     // else
@@ -119,8 +119,9 @@ void super_parser(t_data data)
         } 
 
 
-        curr = data.token;
+        curr = data->token;
         int i = 0;
+        return; // NATH EST PASSÉ PAR LA tmtc
         while(curr)
         {
             printf("\ncmd id -> [%d] | value -> [%s] | type -> [%d]\n", i, curr->str, curr->type);

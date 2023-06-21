@@ -170,7 +170,7 @@ char *getAbsoluteCommandPath(const char *command)
 
 void super_executer(t_data data)
 {
-
+/*
     
     // Manually create and link tokens
     t_token *ls_cmd = malloc(sizeof(t_token));
@@ -244,7 +244,7 @@ void super_executer(t_data data)
 
     data.token = ls_cmd; // Starting point of the linked list
 
-    t_token *curr = data.token;
+    t_token *curr = data.token;*/
     
    /*
     t_token *cat_cmd = malloc(sizeof(t_token));
@@ -271,6 +271,9 @@ void super_executer(t_data data)
 
     t_token *curr = data.token;
     */
+   
+    t_token *curr = data.token;
+    
     int i = 0;
     char sign[MAX_CMD_LEN];
 
@@ -288,5 +291,6 @@ void super_executer(t_data data)
         i++;
         curr = curr->next;
     }
+
     execute_command(data);
 }
