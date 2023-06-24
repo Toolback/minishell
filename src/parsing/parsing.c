@@ -51,7 +51,8 @@ char    *get_bin(char *cmd, t_env *env_list)
     {
         temp = ft_strjoin(env_arr[i], "/");
         binary_path = ft_strjoin(temp, cmd);
-        if(access(binary_path, X_OK))
+        printf("\nBIN TESTED : [%s]\n", binary_path);
+        if(access(binary_path, X_OK) == 0)
             return(binary_path); // we found the correct path for given CMD
     }
     return (NULL);
@@ -144,8 +145,8 @@ void super_parser(t_data *data)
             {
                 if (ft_strchr(curr->str, '/') == NULL) // bin with no path, fetch ENV paths
                 {
-                    ft_printf("\nPATH RETRIEVED :[%s]\n", curr->str);
                     curr->str = get_bin(curr->str, data->env); //NULL if no path found
+                    ft_printf("\nBIN RETRIEVED :[%s]\n", curr->str);
                     // if(curr->str != NULL)
                     //     ft_printf("Bin Found : [%s]", curr->str);
                     // else
@@ -157,13 +158,13 @@ void super_parser(t_data *data)
                     }
                     ft_printf("\nPATH RETRIEVED :[%s]\n", curr->str);
                 }
-                if(access(curr->str, X_OK) == 0) // path is not executable
+                if(access(curr->str, X_OK) == -1) // path is not executable
                 {
                     free(curr->str);
                     curr->str = "Cmd not found or executable";
                 }
             }
-                ft_printf("\nPATH RETRIEVED :[%s]\n", curr->str);
+                ft_printf("\nFINAL PATH RETRIEVED :[%s]\n", curr->str);
             // else if (curr->type == double_redir_left)
             // {
             //     heredoc_open = 1;
