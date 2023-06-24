@@ -122,23 +122,23 @@ void super_parser(t_data *data)
         {
             if (curr->type == new_variable) // new env received, add it to local env
             {
-                add_new_env(data->env, parse_env_key(curr->str), parse_env_value(curr->str));
+                add_new_env(data->env, parse_env_key(curr->str + 1), parse_env_value(curr->str));
                 delete_token(data, curr);
             }
             else if (curr->type == variable) // variable to replace by env in cmd line
             {
                 t_env *curr_env = get_env_with_key((curr->str + 1), data->env);
-                if (ft_strcmp(curr_env->key, (curr->str + 1)) == 0) // env found - token variable replace with env value
-                {
-                    free(curr->str);
-                    curr->str = curr_env->value;
-
-                }
                 if (curr_env == NULL) // no env occurance found, replace token variable with empty string 
                 {
                     ft_printf("\nNO VARIABLE IN ENV FOUND\n");
                     free(curr->str);
                     curr->str = "";
+                }
+                else if (ft_strcmp(curr_env->key, (curr->str + 1)) == 0) // env found - token variable replace with env value
+                {
+                    free(curr->str);
+                    curr->str = curr_env->value;
+
                 }
             }
             else if (curr->type == cmd && is_builtin_cmd(curr->str) == 0 && ft_strcmp(curr->str, "") != 0) // bin received, check for path
@@ -146,7 +146,6 @@ void super_parser(t_data *data)
                 if (ft_strchr(curr->str, '/') == NULL) // bin with no path, fetch ENV paths
                 {
                     curr->str = get_bin(curr->str, data->env); //NULL if no path found
-                    ft_printf("\nBIN RETRIEVED :[%s]\n", curr->str);
                     // if(curr->str != NULL)
                     //     ft_printf("Bin Found : [%s]", curr->str);
                     // else
@@ -156,7 +155,7 @@ void super_parser(t_data *data)
                         free(curr->str);
                         curr->str = "Path for cmd not Found !";
                     }
-                    ft_printf("\nPATH RETRIEVED :[%s]\n", curr->str);
+                    // ft_printf("\nPATH RETRIEVED :[%s]\n", curr->str);
                 }
                 if(access(curr->str, X_OK) == -1) // path is not executable
                 {
@@ -164,7 +163,7 @@ void super_parser(t_data *data)
                     curr->str = "Cmd not found or executable";
                 }
             }
-                ft_printf("\nFINAL PATH RETRIEVED :[%s]\n", curr->str);
+                // ft_printf("\nFINAL PATH RETRIEVED :[%s]\n", curr->str);
             // else if (curr->type == double_redir_left)
             // {
             //     heredoc_open = 1;
@@ -178,14 +177,14 @@ void super_parser(t_data *data)
 
 
         int i = 0;
-        return; // NATH EST PASSÉ PAR LA tmtc
-        while(curr)
-        {
-            ft_printf("\ncmd id -> [%d] | value -> [%s] | type -> [%d]\n", i, curr->str, curr->type);
-            i++;
-            curr = curr->next;
-        } 
-        // t_env *curr2 = data.env;
+        // return; // NATH EST PASSÉ PAR LA tmtc
+        // while(curr)
+        // {
+        //     ft_printf("\ncmd id -> [%d] | value -> [%s] | type -> [%d]\n", i, curr->str, curr->type);
+        //     i++;
+        //     curr = curr->next;
+        // } 
+        // t_env *curr2 = data->env;
         // while(curr2)
         // {
         //     ft_printf("ENV -> [%s]\n", curr2->get_joined_env(curr2));

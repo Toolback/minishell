@@ -28,4 +28,10 @@ line 2
 line n
 EOF
 
+
+
+
+cat <"./test_files/infile_big" | echo hi 
+
+
 ```

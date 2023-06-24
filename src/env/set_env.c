@@ -16,7 +16,7 @@ int add_new_env(t_env *env, char *key, char *value)
 {
     t_env *new;
     t_env *list;
-
+    ft_printf("KEEEEEY [%s]", key);
     list = get_last_env(env);
     if (!(new = malloc(sizeof(t_env))))
 		return (1);
