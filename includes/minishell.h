@@ -16,8 +16,8 @@
 # include <readline/readline.h>
 # include <readline/history.h>
 
-#define MAX_CMD_LEN 256
-#define MAX_NUM_ARGS 1024
+# define MAX_CMD_LEN 256
+# define MAX_NUM_ARGS 1024
 # define STDIN 0
 # define STDOUT 1
 # define STDERR 2
@@ -33,7 +33,8 @@ typedef enum		e_token_type
 	new_variable,
     variable,
     cmd,
-    arg
+    arg,
+	heredoc_delimiter
 }					t_token_type;
 
 typedef struct	s_token

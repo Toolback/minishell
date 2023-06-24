@@ -57,11 +57,52 @@ char    *get_bin(char *cmd, t_env *env_list)
     return (NULL);
 }
 
+// int handle_heredoc(t_data *data)
+// {
+//     char *line;
+//     char **args_arr;
+//     ft_putstr_fd("\033[0;36m\033[1mHereDoc ▸ \033[0m", STDERR);
+//     if (get_next_line(0, &line) == -2 && (data.exit = 1))
+//     {
+//         ft_putendl_fd("exit by GNL", STDERR);
+//         exit(0); // or return to shell with clear data
+//     }
+//     // ft_putstr_fd("HEREDOC Line Received : [%s]",STDERR, line);
+//     if(!line)
+//         return (0);
+//     args_arr = ft_split(line, " ");
+//     while(args_arr[i])
+//     {
+//         if(ft_strcmp(args_arr[i], data) == 0)
+//             return 0;
+//     }
+//     return 1;
+//     // while(line)
+// }
+
+int is_builtin_cmd(char *cmd)
+{
+    ft_printf("CMD COMPARE : [%s]\n", cmd);
+    if (ft_strcmp("echo", cmd) == 0)
+        return (1);
+    if (ft_strcmp("cd", cmd) == 0)
+        return (1);
+    if (ft_strcmp("pwd", cmd) == 0)
+        return (1);
+    if (ft_strcmp("export", cmd) == 0)
+        return (1);
+    if (ft_strcmp("unset", cmd) == 0)
+        return (1);
+    if (ft_strcmp("env", cmd) == 0)
+        return (1);
+    if (ft_strcmp("exit", cmd) == 0)
+        return (1);
+    return (0);
+}
 
 void super_parser(t_data *data)
 {
         char *line;
-    	ft_putstr_fd("\033[0;36m\033[1mminishell ▸ \033[0m", STDERR);
         if (get_next_line(0, &line) == -2 && (data->exit = 1))
         {
 		    ft_putendl_fd("exit by GNL", STDERR);
@@ -94,44 +135,59 @@ void super_parser(t_data *data)
                 }
                 if (curr_env == NULL) // no env occurance found, replace token variable with empty string 
                 {
-                    printf("\nNO VARIABLE IN ENV FOUND\n");
+                    ft_printf("\nNO VARIABLE IN ENV FOUND\n");
                     free(curr->str);
                     curr->str = "";
                 }
             }
-            else if (curr->type == cmd) // bin received, check for path
+            else if (curr->type == cmd && is_builtin_cmd(curr->str) == 0 && ft_strcmp(curr->str, "") != 0) // bin received, check for path
             {
                 if (ft_strchr(curr->str, '/') == NULL) // bin with no path, fetch ENV paths
                 {
+                    ft_printf("\nPATH RETRIEVED :[%s]\n", curr->str);
                     curr->str = get_bin(curr->str, data->env); //NULL if no path found
                     // if(curr->str != NULL)
-                    //     printf("Bin Found : [%s]", curr->str);
+                    //     ft_printf("Bin Found : [%s]", curr->str);
                     // else
-                    //     printf("No Bin Path Found in ENV");
+                    //     ft_printf("No Bin Path Found in ENV");
+                    if(curr->str == NULL)
+                    {
+                        free(curr->str);
+                        curr->str = "Path for cmd not Found !";
+                    }
+                    ft_printf("\nPATH RETRIEVED :[%s]\n", curr->str);
                 }
-                if(curr->str == NULL || access(curr->str, X_OK) != 0) // path is not executable
+                if(access(curr->str, X_OK) == 0) // path is not executable
                 {
                     free(curr->str);
-                    curr->str = "Path for cmd not Found !";
+                    curr->str = "Cmd not found or executable";
                 }
             }
+                ft_printf("\nPATH RETRIEVED :[%s]\n", curr->str);
+            // else if (curr->type == double_redir_left)
+            // {
+            //     heredoc_open = 1;
+            //     printf("Heredoc :");
+            // }
             curr = curr->next;
         } 
-
-
         curr = data->token;
+        // while(heredoc_open == 1)
+        //     heredoc_open = handle_heredoc(&data);
+
+
         int i = 0;
         return; // NATH EST PASSÉ PAR LA tmtc
         while(curr)
         {
-            printf("\ncmd id -> [%d] | value -> [%s] | type -> [%d]\n", i, curr->str, curr->type);
+            ft_printf("\ncmd id -> [%d] | value -> [%s] | type -> [%d]\n", i, curr->str, curr->type);
             i++;
             curr = curr->next;
         } 
         // t_env *curr2 = data.env;
         // while(curr2)
         // {
-        //     printf("ENV -> [%s]\n", curr2->get_joined_env(curr2));
+        //     ft_printf("ENV -> [%s]\n", curr2->get_joined_env(curr2));
         //     curr2 = curr2->next;
         // }
         

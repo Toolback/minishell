@@ -112,6 +112,8 @@ void	set_token_type(t_token *token)
 		token->type = variable;
 	else if (token->prev == NULL || token->prev->type == pipeline)
 		token->type = cmd;
+	else if (token->prev->type == double_redir_left)
+		token->type = heredoc_delimiter;
 	else
 		token->type = arg;
 }

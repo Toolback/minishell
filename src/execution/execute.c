@@ -118,7 +118,7 @@ void execute_command(t_data data)
                 if (execve(args[0], args, envp) == -1)
                 {
                     perror("execve");
-                    printf("Commande non trouvée\n");
+                    printf("Commande non trouvée [%s]\n", args[0]);
                     exit(EXIT_FAILURE);
                 }
                 exit(EXIT_SUCCESS);
@@ -275,15 +275,15 @@ void super_executer(t_data data)
     t_token *curr = data.token;
     
     int i = 0;
-    char sign[MAX_CMD_LEN];
+    // char sign[MAX_CMD_LEN];
 
-    if (fgets(sign, MAX_CMD_LEN, stdin) == NULL)
-    {
-        // L'utilisateur a tapé CTRL+D
-        printf("Exit <3\n");
-        exit(0);
-    }
-    sign[strcspn(sign, "\n")] = 0; // Enlever le retour à la ligne
+    // if (fgets(sign, MAX_CMD_LEN, stdin) == NULL)
+    // {
+    //     // L'utilisateur a tapé CTRL+D
+    //     printf("Exit <3\n");
+    //     exit(0);
+    // }
+    // sign[strcspn(sign, "\n")] = 0; // Enlever le retour à la ligne
 
     while (curr)
     {
