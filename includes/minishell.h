@@ -40,6 +40,7 @@ typedef enum		e_token_type
 typedef struct	s_token
 {
 	char			*str;
+	char			*heredoc_EOF;
 	t_token_type	type;
 	struct s_token	*prev;
 	struct s_token	*next;

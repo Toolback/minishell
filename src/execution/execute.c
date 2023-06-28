@@ -285,12 +285,12 @@ void super_executer(t_data data)
     // }
     // sign[strcspn(sign, "\n")] = 0; // Enlever le retour à la ligne
 
-    while (curr)
-    {
-        printf("cmd id -> [%d] | value -> [%s] | type -> [%d]\n", i, curr->str, curr->type);
-        i++;
-        curr = curr->next;
-    }
+    // while (curr)
+    // {
+    //     printf("cmd id -> [%d] | value -> [%s] | type -> [%d]\n", i, curr->str, curr->type);
+    //     i++;
+    //     curr = curr->next;
+    // }
 
     execute_command(data);
 }

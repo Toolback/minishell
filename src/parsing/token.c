@@ -124,6 +124,13 @@ void	skip_space(const char *str, int *i)
 		(*i)++;
 }
 
+void init_heredoc_token(t_token *curr, char *line, int start)
+{
+	curr->type = arg;
+	curr->heredoc_EOF = ft_strdup(curr->str);
+	curr->str = ft_strjoin(curr->str, line + start);
+}
+
 int tokenize(t_data *data, char *line)
 {
     t_token *curr;
@@ -149,6 +156,15 @@ int tokenize(t_data *data, char *line)
         next->next = NULL;
         curr->next = next;
         curr = next;
+		if (curr->type == heredoc_delimiter) // begin of heredoc, store the rest of the line including delimiter in next node
+		{
+			curr->heredoc_EOF = ft_strdup(curr->str);
+			curr->str = ft_strjoin(curr->str, line + i);
+			curr->type = arg;
+			// init_heredoc_token(curr, line, i);
+			// free line ?
+			break;
+		}
     }
     return (0);
 }
