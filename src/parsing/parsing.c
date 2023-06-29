@@ -144,7 +144,7 @@ void super_parser(t_data *data)
         int     heredoc_open;
         if (get_next_line(0, &line) == -2 && (data->exit = 1))
         {
-		    ft_putendl_fd("exit by GNL", STDERR);
+		    // ft_putendl_fd("exit by GNL", STDERR);
             exit(0);
         }
         if (sanitise_args(line) != 0)
@@ -160,8 +160,17 @@ void super_parser(t_data *data)
         {
             if (curr->type == new_variable) // new env received, add it to local env
             {
-                add_new_env(data->env, parse_env_key(curr->str + 1), parse_env_value(curr->str));
-                delete_token(data, curr);
+                if(curr->next == NULL)
+                {
+                    add_new_env(data->env, parse_env_key(curr->str), parse_env_value(curr->str));
+                    delete_token(data, curr);
+                    break; // Bash only parse 1 cmd when adding ENV var 
+                }
+                else
+                    delete_token(data, curr); // if more than 1 cmd, just delete curr node and continue;
+                    curr = curr->next;
+                    set_token_type(curr);
+                    continue;
             }
             else if (curr->type == variable) // variable to replace by env in cmd line
             {
@@ -180,6 +189,7 @@ void super_parser(t_data *data)
                 }
             }
             else if (curr->type == cmd && is_builtin_cmd(curr->str) == 0 && ft_strcmp(curr->str, "") != 0) // bin received (not builtin), check for path
+            // else if (curr->type == cmd && ft_strcmp(curr->str, "") != 0) // bin received (not builtin), check for path
             {
                 if (ft_strchr(curr->str, '/') == NULL) // bin with no path, fetch ENV paths
                 {
