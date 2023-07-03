@@ -142,6 +142,8 @@ void super_parser(t_data *data)
 {
         char *line;
         int     heredoc_open;
+
+        heredoc_open = 0;
         if (get_next_line(0, &line) == -2 && (data->exit = 1))
         {
 		    // ft_putendl_fd("exit by GNL", STDERR);
@@ -228,12 +230,12 @@ void super_parser(t_data *data)
         curr = data->token;
         int i = 0;
         // return; // NATH EST PASSÉ PAR LA tmtc
-        // while(curr)
-        // {
-        //     ft_printf("\ncmd id -> [%d] | value -> [%s] | type -> [%d]\n", i, curr->str, curr->type);
-        //     i++;
-        //     curr = curr->next;
-        // } 
+        while(curr)
+        {
+            ft_printf("\ncmd id -> [%d] | value -> [%s] | type -> [%d]\n", i, curr->str, curr->type);
+            i++;
+            curr = curr->next;
+        } 
         // t_env *curr2 = data->env;
         // while(curr2)
         // {
