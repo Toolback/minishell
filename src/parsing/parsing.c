@@ -51,10 +51,17 @@ char    *get_bin(char *cmd, t_env *env_list)
     {
         temp = ft_strjoin(env_arr[i], "/");
         binary_path = ft_strjoin(temp, cmd);
+        free(temp);
         // printf("\nBIN TESTED : [%s]\n", binary_path);
         if(access(binary_path, X_OK) == 0)
+        {
+            free_arr(env_arr);
             return(binary_path); // we found the correct path for given CMD
+        }
+        else
+            free(binary_path);
     }
+    free_arr(env_arr);
     return (NULL);
 }
 
@@ -98,7 +105,7 @@ char    *get_bin(char *cmd, t_env *env_list)
 int handle_heredoc(t_data *data, t_token *curr)
 {
     char *line;
-    char **args_arr;
+    // char **args_arr;
     ft_putstr_fd("\033[0;36m\033[1mHereDoc ▸ \033[0m", STDERR);
     if (get_next_line(0, &line) == -2 && (data->exit = 1))
     {
@@ -127,8 +134,8 @@ int is_builtin_cmd(char *cmd)
         return (1);
     if (ft_strcmp("pwd", cmd) == 0)
         return (1);
-    if (ft_strcmp("export", cmd) == 0)
-        return (1);
+    // if (ft_strcmp("export", cmd) == 0) // handle in super parser 
+    //     return (1);
     if (ft_strcmp("unset", cmd) == 0)
         return (1);
     if (ft_strcmp("env", cmd) == 0)
@@ -147,6 +154,8 @@ void super_parser(t_data *data)
         if (get_next_line(0, &line) == -2 && (data->exit = 1))
         {
 		    // ft_putendl_fd("exit by GNL", STDERR);
+            free_env(data->env);
+            free_env(data->secret_env);
             exit(0);
         }
         if (sanitise_args(line) != 0)
@@ -169,13 +178,16 @@ void super_parser(t_data *data)
                     break; // Bash only parse 1 cmd when adding ENV var 
                 }
                 else
+                {
                     delete_token(data, curr); // if more than 1 cmd, just delete curr node and continue;
                     curr = curr->next;
                     set_token_type(curr);
                     continue;
+                }
             }
             else if (curr->type == variable) // variable to replace by env in cmd line
             {
+                            ft_printf("\nCUURR [%s]\n", curr->str);
                 t_env *curr_env = get_env_with_key((curr->str + 1), data->env);
                 if (curr_env == NULL) // no env occurance found, replace token variable with empty string 
                 {
@@ -193,24 +205,34 @@ void super_parser(t_data *data)
             else if (curr->type == cmd && is_builtin_cmd(curr->str) == 0 && ft_strcmp(curr->str, "") != 0) // bin received (not builtin), check for path
             // else if (curr->type == cmd && ft_strcmp(curr->str, "") != 0) // bin received (not builtin), check for path
             {
-                if (ft_strchr(curr->str, '/') == NULL) // bin with no path, fetch ENV paths
+                if (ft_strcmp(curr->str, "export") == 0) // exporting new ENV Variables
                 {
-                    curr->str = get_bin(curr->str, data->env); //NULL if no path found
-                    // if(curr->str != NULL)
-                    //     ft_printf("Bin Found : [%s]", curr->str);
-                    // else
-                    //     ft_printf("No Bin Path Found in ENV");
-                    if(curr->str == NULL)
+                    add_new_env(data->env, parse_env_key(curr->next->str), parse_env_value(curr->next->str));
+                    delete_token(data, curr);
+                    delete_token(data, curr->next);
+                    break; // Bash only parse 1 cmd when adding ENV var 
+                }
+                else 
+                {
+                    if (ft_strchr(curr->str, '/') == NULL) // bin with no path, fetch ENV paths
+                    {
+                        curr->str = get_bin(curr->str, data->env); //NULL if no path found
+                        // if(curr->str != NULL)
+                        //     ft_printf("Bin Found : [%s]", curr->str);
+                        // else
+                        //     ft_printf("No Bin Path Found in ENV");
+                        if(curr->str == NULL)
+                        {
+                            free(curr->str);
+                            curr->str = "Path for cmd not Found !";
+                        }
+                        // ft_printf("\nPATH RETRIEVED :[%s]\n", curr->str);
+                    }
+                    if(access(curr->str, X_OK) == -1) // path is not executable
                     {
                         free(curr->str);
-                        curr->str = "Path for cmd not Found !";
+                        curr->str = "Cmd not found or executable";
                     }
-                    // ft_printf("\nPATH RETRIEVED :[%s]\n", curr->str);
-                }
-                if(access(curr->str, X_OK) == -1) // path is not executable
-                {
-                    free(curr->str);
-                    curr->str = "Cmd not found or executable";
                 }
             }
                 // ft_printf("\nFINAL PATH RETRIEVED :[%s]\n", curr->str);
@@ -227,21 +249,19 @@ void super_parser(t_data *data)
             heredoc_open = handle_heredoc(data, curr);
 
 
-        curr = data->token;
-        int i = 0;
-        // return; // NATH EST PASSÉ PAR LA tmtc
-        while(curr)
-        {
-            ft_printf("\ncmd id -> [%d] | value -> [%s] | type -> [%d]\n", i, curr->str, curr->type);
-            i++;
-            curr = curr->next;
-        } 
+        // curr = data->token;
+        // int i = 0;
+        // // return; // NATH EST PASSÉ PAR LA tmtc
+        // while(curr)
+        // {
+        //     ft_printf("\ncmd id -> [%d] | value -> [%s] | type -> [%d]\n", i, curr->str, curr->type);
+        //     i++;
+        //     curr = curr->next;
+        // } 
         // t_env *curr2 = data->env;
         // while(curr2)
         // {
         //     ft_printf("ENV -> [%s]\n", curr2->get_joined_env(curr2));
         //     curr2 = curr2->next;
         // }
-        
-
 }

@@ -34,7 +34,8 @@ typedef enum		e_token_type
     variable,
     cmd,
     arg,
-	heredoc_delimiter
+	heredoc_delimiter,
+	simple_quote
 }					t_token_type;
 
 typedef struct	s_token
@@ -101,6 +102,8 @@ void	skip_space(const char *str, int *i);
 //  free.c
 //
 void	free_env(t_env *env);
+void	free_all_tokens(t_token *token);
+void    free_arr(char **arr);
 
 // builtins /
 // env.c/

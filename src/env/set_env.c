@@ -4,19 +4,24 @@
 void increment_shell_level(t_env *env_list)
 {
     t_env *shlvl;
+    char  *temp;
     int lvl;
 
+    lvl = 0;
     shlvl = get_env_with_key("SHLVL", env_list);
-    lvl = ft_atoi(shlvl->value) + 1;
+    lvl = ft_atoi(shlvl->value);
+    lvl++;
     free(shlvl->value);
-    shlvl->value = ft_strdup(ft_itoa(lvl));
+    temp = ft_itoa(lvl);
+    shlvl->value = ft_strdup(temp);
+    free(temp);
 }
 
 int add_new_env(t_env *env, char *key, char *value)
 {
     t_env *new;
     t_env *list;
-    ft_printf("KEEEEEY [%s]", key);
+    // ft_printf("KEEEEEY [%s]", key);
     list = get_last_env(env);
     if (!(new = malloc(sizeof(t_env))))
 		return (1);

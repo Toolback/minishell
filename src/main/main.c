@@ -10,6 +10,12 @@ void handle_signal(int sig) {
     printf("SIG RETRIEVED : [%d]", sig);
 }
 
+void    exit_shell(t_data *data)
+{
+    // free_all_tokens(data->token);
+    free_env(data->env);
+    free_env(data->secret_env);
+}
 int main(int ac, char **av, char **env) {
     t_data data;
     (void)ac;
@@ -27,8 +33,10 @@ int main(int ac, char **av, char **env) {
     	ft_putstr_fd("\033[0;36m\033[1mminishell ▸ \033[0m", STDERR);
         super_parser(&data);
         super_executer(data);
+        free_all_tokens(data.token);
     }
+
     // rl_clear_history();
-    // exit_shell(&data);
+    exit_shell(&data);
     return (0);
 }

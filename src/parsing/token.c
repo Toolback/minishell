@@ -34,12 +34,21 @@ t_token *set_token_value(char *line, int *i) {
     
     c = ' ';
     j = 0;
-	if (!(token = malloc(sizeof(t_token)))
-	|| !(token->str = malloc(sizeof(char) * next_alloc(line, i))))
+	// if (!(token = (t_token *)malloc(sizeof(t_token)))
+	// || !(token->str = (char *)malloc(sizeof(char) * next_alloc(line, i))))
+	// 	return (NULL);
+
+
+	if (!(token = (t_token *)malloc(sizeof(t_token))))
 		return (NULL);
+	if (!(token->str = (char *)malloc(sizeof(char) * next_alloc(line, i))))
+		return (NULL);
+
     // Parse the line
-    while (line[*i] && line[*i] != ' '|| c != ' ') {
+    while (line[*i] && (line[*i] != ' '|| c != ' ')) {
         if (c == ' ' && (line[*i] == '\'' || line[*i] == '\"')) {
+			if (line[*i] == '\'')
+				token->type = simple_quote;
             // If current character is a quote and c is a space, set c to the quote and move to the next character
             c = line[(*i)++];
         } else if (c != ' ' && line[*i] == c) {
@@ -55,14 +64,14 @@ t_token *set_token_value(char *line, int *i) {
         }
     }
     token->str[j] = '\0';
-    return token;
+    return (token);
 }
 
 int delete_token(t_data *data, t_token *curr)
 {
-	int status;
+	// int status;
 
-	status = 0;
+	// status = 0;
 	if(curr)
 	{
 		// curr is in the middle of the list, we have a prev and next token to relink to
@@ -108,7 +117,7 @@ void	set_token_type(t_token *token)
 		token->type = pipeline;
 	else if (ft_strchr(token->str, '=') != NULL)
 		token->type = new_variable;
-	else if (ft_strchr(token->str, '$') != NULL && ft_strchr(token->str, '=') == NULL)
+	else if (ft_strchr(token->str, '$') != NULL && ft_strchr(token->str, '=') == NULL && token->type != simple_quote)
 		token->type = variable;
 	else if (token->prev == NULL || token->prev->type == pipeline)
 		token->type = cmd;
@@ -140,6 +149,10 @@ int tokenize(t_data *data, char *line)
     i = 0;
     next = NULL;
     curr = set_token_value(line, &i);
+	if (curr == NULL || curr->str == NULL)
+	{
+		ft_printf("ERROR ALLOC MALLOC");
+	}
 	curr->prev = NULL;
 	set_token_type(curr);
     data->token = curr;

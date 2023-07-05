@@ -1,6 +1,6 @@
 NAME = minishell
 
-CC = gcc
+CC = gcc -Wall -Werror -Wextra
 
 CFLAGS = -g -I includes/ -I libft/includes/
 

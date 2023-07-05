@@ -1,15 +1,35 @@
 #include "../../includes/minishell.h"
 void	free_env(t_env *env)
 {
-	t_env	*tmp;
+	if (env == NULL)
+		return ;
+	if (env->key != NULL)
+		free(env->key);
+	if (env->value != NULL)
+		free(env->value);
+	free(env);
+}
 
-	while (env && env->next)
-	{
-		tmp = env;
-		env = env->next;
-		ft_memdel(tmp->value);
-		ft_memdel(tmp);
-	}
-	ft_memdel(env->value);
-	ft_memdel(env);
+void	free_all_tokens(t_token *token)
+{
+	if (token == NULL)
+		return ;
+	free_all_tokens(token->next);
+	if (token->str != NULL)
+		free(token->str);
+	if (token->heredoc_EOF != NULL)
+		free(token->heredoc_EOF);
+	free(token);
+}
+
+void    free_arr(char **arr)
+{
+    int i;
+
+    i = 0;
+    while(arr[i])
+    {
+        free(arr[i]);
+        i++;
+    }
 }

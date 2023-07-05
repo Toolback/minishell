@@ -5,6 +5,11 @@ TODO :
 - handle export / env (export contain env with and without key when env contain only key with value)
 - Handle History
 
+
+
+valgrind --leak-check=full -s --show-leak-kinds=all --track-origins=yes --verbose
+
+
 ------ HereDoc Test ------
 ```bash
 message=$(cat <<EOF

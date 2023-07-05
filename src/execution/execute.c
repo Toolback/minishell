@@ -272,9 +272,9 @@ void super_executer(t_data data)
     t_token *curr = data.token;
     */
    
-    t_token *curr = data.token;
+    // t_token *curr = data.token;
     
-    int i = 0;
+    // int i = 0;
     // char sign[MAX_CMD_LEN];
 
     // if (fgets(sign, MAX_CMD_LEN, stdin) == NULL)

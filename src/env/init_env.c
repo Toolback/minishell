@@ -29,7 +29,9 @@ char	*parse_env_value(char *env_val)
 		j++;
 	}
 	j = temp;
-	value = (char *)malloc(sizeof(char) * (i + 1));
+	value = (char *)malloc(sizeof(char) * i + 1);
+	if (!value)
+		return NULL;
 	i = 0;
 	while(env_val[j])
 	{
@@ -37,6 +39,7 @@ char	*parse_env_value(char *env_val)
 		i++;
 		j++;
 	}
+	value[i] = '\0';
 	return (value);
 }
 
@@ -50,7 +53,7 @@ char	*parse_env_key(char *env_val)
 	i = 0;
 	while (env_val && env_val[end] != '=')
 		end++;
-	key = (char *)malloc(sizeof(char) * end);
+	key = (char *)malloc(sizeof(char) * (end + 1));
 	while(i < end)
 	{
 		key[i] = env_val[i];
