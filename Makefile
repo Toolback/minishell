@@ -11,7 +11,7 @@ HEADER = minishell.h
 AST = 
 
 # BUILTINS = cd echo env exit export pwd unset
-BUILTINS = env
+BUILTINS = env echo
 
 ENV = init_env get_env set_env
 
