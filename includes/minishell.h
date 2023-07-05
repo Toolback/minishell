@@ -63,6 +63,7 @@ typedef struct s_data
 	int			in;
 	int			out;
 	int			exit;
+	int			ret;
 }               t_data;
 
 
@@ -105,11 +106,18 @@ void	free_env(t_env *env);
 void	free_all_tokens(t_token *token);
 void    free_arr(char **arr);
 
-// builtins /
-// env.c/
-//
-int		ft_env(t_env *env);
+/*
+** BUILTINS
+*/
 int				ft_echo(char **args);
+//int				ft_cd(char **args, t_env *env);
+int				ft_pwd(void);
+int				ft_env(t_env *env);
+char			*get_env_name(char *dest, const char *src);
+void		sort_env(char **tab, int env_len);
+void		print_sorted_env(t_env *env);
+int		is_valid_env(const char *env);
+
 void    super_parser(t_data *data);
 void    handle_signal(int sig);
 void    super_executer(t_data data);

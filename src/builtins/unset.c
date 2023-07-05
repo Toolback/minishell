@@ -13,7 +13,7 @@ static size_t	env_size(char *env)
 	return (i);
 }
 
-static void		free_node(t_mini *mini, t_env *env)
+static void		free_node(t_data *mini, t_env *env)
 {
 	if (mini->env == env && env->next == NULL)
 	{
@@ -26,19 +26,19 @@ static void		free_node(t_mini *mini, t_env *env)
 	ft_memdel(env);
 }
 
-int				ft_unset(char **a, t_mini *mini)
+int				ft_unset(char **a, t_data *mini)
 {
 	t_env	*env;
 	t_env	*tmp;
 
 	env = mini->env;
 	if (!(a[1]))
-		return (SUCCESS);
+		return (0);
 	if (ft_strncmp(a[1], env->value, env_size(env->value)) == 0)
 	{
 		mini->env = (env->next) ? env->next : mini->env;
 		free_node(mini, env);
-		return (SUCCESS);
+		return (0);
 	}
 	while (env && env->next)
 	{
@@ -47,9 +47,9 @@ int				ft_unset(char **a, t_mini *mini)
 			tmp = env->next->next;
 			free_node(mini, env->next);
 			env->next = tmp;
-			return (SUCCESS);
+			return (0);
 		}
 		env = env->next;
 	}
-	return (SUCCESS);
+	return (0);
 }

@@ -118,9 +118,28 @@ void execute_command(t_data data)
                 if (strcmp(args[0], "echo") == 0)
                 {
                     // Appelle ft_echo avec les arguments appropriés.
-                    //printf("tezt");
+                    // printf("tezt");
                     ft_echo(args);
                 }
+                else if (strcmp(args[0], "cd") == 0)
+                {
+                    // Appelle ft_echo avec les arguments appropriés.
+                    // printf("tezt");
+                    //ft_cd(args, data.env);
+                }
+                else if (strcmp(args[0], "pwd") == 0)
+                {
+                    // Appelle ft_echo avec les arguments appropriés.
+                    // printf("tezt");
+                    ft_pwd();
+                }
+                else if (strcmp(args[0], "env") == 0)
+                {
+                    // Appelle ft_echo avec les arguments appropriés.
+                    // printf("tezt");
+                    ft_env(data.env);
+                }
+
                 else if (execve(args[0], args, envp) == -1)
                 {
                     perror("execve");
@@ -156,146 +175,7 @@ void execute_command(t_data data)
     }
 }
 
-char *getAbsoluteCommandPath(const char *command)
-{
-    // Replace these paths with the actual absolute paths for your system
-    if (strcmp(command, "cat") == 0)
-        return "/bin/cat";
-    else if (strcmp(command, "grep") == 0)
-        return "/usr/bin/grep";
-    else if (strcmp(command, "yes") == 0)
-        return "/usr/bin/yes";
-    else if (strcmp(command, "ls") == 0)
-        return "/bin/ls";
-    else if (strcmp(command, "wc") == 0)
-        return "/usr/bin/wc";
-    else
-        return NULL; // Command not found
-}
-
 void super_executer(t_data data)
 {
-    /*
-
-        // Manually create and link tokens
-        t_token *ls_cmd = malloc(sizeof(t_token));
-        ls_cmd->str = strdup("/bin/ls"); // Replace with actual path to ls
-        ls_cmd->type = cmd;
-        ls_cmd->prev = NULL;
-
-        t_token *ls_arg = malloc(sizeof(t_token));
-        ls_arg->str = strdup("-l");
-        ls_arg->type = arg;
-        ls_arg->prev = ls_cmd;
-
-        ls_cmd->next = ls_arg;
-
-        t_token *pipe1 = malloc(sizeof(t_token));
-        pipe1->str = strdup("|");
-        pipe1->type = pipeline;
-        pipe1->prev = ls_arg;
-
-        ls_arg->next = pipe1;
-
-        t_token *grep_cmd = malloc(sizeof(t_token));
-        grep_cmd->str = strdup("/usr/bin/grep"); // Replace with actual path to grep
-        grep_cmd->type = cmd;
-        grep_cmd->prev = pipe1;
-
-        pipe1->next = grep_cmd;
-
-        t_token *grep_arg = malloc(sizeof(t_token));
-        grep_arg->str = strdup(".txt");
-        grep_arg->type = arg;
-        grep_arg->prev = grep_cmd;
-
-        grep_cmd->next = grep_arg;
-
-        t_token *pipe2 = malloc(sizeof(t_token));
-        pipe2->str = strdup("|");
-        pipe2->type = pipeline;
-        pipe2->prev = grep_arg;
-
-        grep_arg->next = pipe2;
-
-        t_token *wc_cmd = malloc(sizeof(t_token));
-        wc_cmd->str = strdup("/usr/bin/wc"); // Replace with actual path to wc
-        wc_cmd->type = cmd;
-        wc_cmd->prev = pipe2;
-
-        pipe2->next = wc_cmd;
-
-        t_token *wc_arg = malloc(sizeof(t_token));
-        wc_arg->str = strdup("-l");
-        wc_arg->type = arg;
-        wc_arg->prev = wc_cmd;
-
-        wc_cmd->next = wc_arg;
-
-        t_token *redir_right = malloc(sizeof(t_token));
-        redir_right->str = strdup("<");
-        redir_right->type = simple_redir_left;
-        redir_right->prev = wc_arg;
-
-        wc_arg->next = redir_right;
-
-        t_token *file_name = malloc(sizeof(t_token));
-        file_name->str = strdup("file_count.txt");
-        file_name->type = arg;
-        file_name->prev = redir_right;
-
-        redir_right->next = file_name;
-        file_name->next = NULL; // This is the end of the linked list
-
-        data.token = ls_cmd; // Starting point of the linked list
-
-        t_token *curr = data.token;*/
-
-    /*
-     t_token *cat_cmd = malloc(sizeof(t_token));
-     cat_cmd->str = strdup("/bin/cat"); // Replace with actual path to cat
-     cat_cmd->type = cmd;
-     cat_cmd->prev = NULL;
-
-     t_token *double_redir_lefte = malloc(sizeof(t_token));
-     double_redir_lefte->str = strdup("<<");
-     double_redir_lefte->type = double_redir_left;
-     double_redir_lefte->prev = cat_cmd;
-
-     cat_cmd->next = double_redir_lefte;
-
-     t_token *heredoc_arg = malloc(sizeof(t_token));
-     heredoc_arg->str = strdup("EOF\nCeci est la ligne 1.\nCeci est la ligne 2.\nEOF\n");
-     heredoc_arg->type = arg;
-     heredoc_arg->prev = double_redir_lefte;
-
-     double_redir_lefte->next = heredoc_arg;
-     heredoc_arg->next = NULL; // This is the end of the linked list
-
-     data.token = cat_cmd; // Starting point of the linked list
-
-     t_token *curr = data.token;
-     */
-
-    // t_token *curr = data.token;
-
-    // int i = 0;
-    // char sign[MAX_CMD_LEN];
-
-    // if (fgets(sign, MAX_CMD_LEN, stdin) == NULL)
-    // {
-    //     // L'utilisateur a tapé CTRL+D
-    //     printf("Exit <3\n");
-    //     exit(0);
-    // }
-    // sign[strcspn(sign, "\n")] = 0; // Enlever le retour à la ligne
-
-    // while (curr)
-    // {
-    //     printf("cmd id -> [%d] | value -> [%s] | type -> [%d]\n", i, curr->str, curr->type);
-    //     i++;
-    //     curr = curr->next;
-    // }
-
     execute_command(data);
 }

@@ -223,7 +223,7 @@ void super_parser(t_data *data)
                         //     ft_printf("No Bin Path Found in ENV");
                         if(curr->str == NULL)
                         {
-                            free(curr->str);
+                            //free(curr->str); 
                             curr->str = "Path for cmd not Found !";
                         }
                         // ft_printf("\nPATH RETRIEVED :[%s]\n", curr->str);
@@ -249,9 +249,9 @@ void super_parser(t_data *data)
             heredoc_open = handle_heredoc(data, curr);
 
 
-        // curr = data->token;
-        // int i = 0;
-        // // return; // NATH EST PASSÉ PAR LA tmtc
+        curr = data->token;
+        //int i = 0;
+        // return; // NATH EST PASSÉ PAR LA tmtc
         // while(curr)
         // {
         //     ft_printf("\ncmd id -> [%d] | value -> [%s] | type -> [%d]\n", i, curr->str, curr->type);

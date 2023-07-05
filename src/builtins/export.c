@@ -17,7 +17,7 @@ static int	print_error(int error, const char *arg)
 		i++;
 	}
 	write(STDERR, "\n", 1);
-	return (ERROR);
+	return (1);
 }
 
 int			env_add(const char *value, t_env *env)
@@ -28,7 +28,7 @@ int			env_add(const char *value, t_env *env)
 	if (env && env->value == NULL)
 	{
 		env->value = ft_strdup(value);
-		return (SUCCESS);
+		return (0);
 	}
 	if (!(new = malloc(sizeof(t_env))))
 		return (-1);
@@ -38,7 +38,7 @@ int			env_add(const char *value, t_env *env)
 	tmp = env->next;
 	env->next = new;
 	new->next = tmp;
-	return (SUCCESS);
+	return (0);
 }
 
 char		*get_env_name(char *dest, const char *src)
@@ -46,7 +46,7 @@ char		*get_env_name(char *dest, const char *src)
 	int		i;
 
 	i = 0;
-	while (src[i] && src[i] != '=' && ft_strlen(src) < BUFF_SIZE)
+	while (src[i] && src[i] != '=' && ft_strlen(src) < 4096)
 	{
 		dest[i] = src[i];
 		i++;
@@ -57,8 +57,8 @@ char		*get_env_name(char *dest, const char *src)
 
 int			is_in_env(t_env *env, char *args)
 {
-	char	var_name[BUFF_SIZE];
-	char	env_name[BUFF_SIZE];
+	char	var_name[4096];
+	char	env_name[4096];
 
 	get_env_name(var_name, args);
 	while (env && env->next)
@@ -72,7 +72,7 @@ int			is_in_env(t_env *env, char *args)
 		}
 		env = env->next;
 	}
-	return (SUCCESS);
+	return (0);
 }
 
 int			ft_export(char **args, t_env *env, t_env *secret)
@@ -84,7 +84,7 @@ int			ft_export(char **args, t_env *env, t_env *secret)
 	if (!args[1])
 	{
 		print_sorted_env(secret);
-		return (SUCCESS);
+		return (0);
 	}
 	else
 	{
@@ -101,5 +101,5 @@ int			ft_export(char **args, t_env *env, t_env *secret)
 			env_add(args[1], secret);
 		}
 	}
-	return (SUCCESS);
+	return (0);
 }
