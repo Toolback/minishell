@@ -2,104 +2,102 @@
 
 #include "minishell.h"
 
-static int	print_error(int error, const char *arg)
+// static int	print_error(int error, const char *arg)
+// {
+// 	int		i;
+
+// 	if (error == -1)
+// 		ft_putstr_fd("export: not valid in this context: ", STDERR);
+// 	else if (error == 0 || error == -3)
+// 		ft_putstr_fd("export: not a valid identifier: ", STDERR);
+// 	i = 0;
+// 	while (arg[i] && (arg[i] != '=' || error == -3))
+// 	{
+// 		write(STDERR, &arg[i], 1);
+// 		i++;
+// 	}
+// 	write(STDERR, "\n", 1);
+// 	return (1);
+// }
+
+int get_total_env(t_env *list)
 {
-	int		i;
-
-	if (error == -1)
-		ft_putstr_fd("export: not valid in this context: ", STDERR);
-	else if (error == 0 || error == -3)
-		ft_putstr_fd("export: not a valid identifier: ", STDERR);
-	i = 0;
-	while (arg[i] && (arg[i] != '=' || error == -3))
-	{
-		write(STDERR, &arg[i], 1);
-		i++;
-	}
-	write(STDERR, "\n", 1);
-	return (1);
-}
-
-int			env_add(const char *value, t_env *env)
-{
-	t_env	*new;
-	t_env	*tmp;
-
-	if (env && env->value == NULL)
-	{
-		env->value = ft_strdup(value);
-		return (0);
-	}
-	if (!(new = malloc(sizeof(t_env))))
-		return (-1);
-	new->value = ft_strdup(value);
-	while (env && env->next && env->next->next)
-		env = env->next;
-	tmp = env->next;
-	env->next = new;
-	new->next = tmp;
-	return (0);
-}
-
-char		*get_env_name(char *dest, const char *src)
-{
-	int		i;
+	int	i;
+	t_env	*temp;
 
 	i = 0;
-	while (src[i] && src[i] != '=' && ft_strlen(src) < 4096)
+	temp = list;
+	while (temp->next)
 	{
-		dest[i] = src[i];
+		i++;
+		temp = temp->next;
+	}
+	return (i);
+}
+
+char	**env_to_arr(t_env *list, int env_count)
+{
+	int		i;
+	char	**res;
+	t_env	*temp;
+
+	i = 0;
+	temp = list;
+	if (!(res = (char **)malloc(sizeof(char *) * env_count)))
+		return NULL;
+	while (i <= env_count)
+	{
+		// res[i] = (char *)malloc(sizeof(char) * (ft_strlen(temp->key) + ft_strlen(temp->value) + 1));
+		res[i] = temp->get_joined_env(temp);
+		temp = temp->next;
 		i++;
 	}
-	dest[i] = '\0';
-	return (dest);
+	res[i] = NULL;
+	return (res);
 }
 
-int			is_in_env(t_env *env, char *args)
+// void		sort_env(char **tab, int env_len)
+// {
+// 	int		ordered;
+// 	int		i;
+// 	char	*tmp;
+
+// 	ordered = 0;
+// 	while (tab && ordered == 0)
+// 	{
+// 		ordered = 1;
+// 		i = 0;
+// 		while (i < env_len - 1)
+// 		{
+// 			if (ft_strcmp(tab[i], tab[i + 1]) > 0)
+// 			{
+// 				tmp = tab[i];
+// 				tab[i] = tab[i + 1];
+// 				tab[i + 1] = tmp;
+// 				ordered = 0;
+// 			}
+// 			i++;
+// 		}
+// 		env_len--;
+// 	}
+// }
+
+int			ft_export(t_env *env)
 {
-	char	var_name[4096];
-	char	env_name[4096];
+	int		i;
+	int		env_count;
+	char	**tab;
 
-	get_env_name(var_name, args);
-	while (env && env->next)
+	env_count = get_total_env(env);
+	tab = env_to_arr(env, env_count);
+	sort_env(tab, env_count);
+	i = 0;
+	while (tab[i] != NULL)
 	{
-		get_env_name(env_name, env->value);
-		if (ft_strcmp(var_name, env_name) == 0)
-		{
-			ft_memdel(env->value);
-			env->value = ft_strdup(args);
-			return (1);
-		}
-		env = env->next;
+		ft_putstr("declare -x ");
+		ft_putendl(tab[i]);
+		i++;
 	}
-	return (0);
-}
-
-int			ft_export(char **args, t_env *env, t_env *secret)
-{
-	int		new_env;
-	int		error_ret;
-
-	new_env = 0;
-	if (!args[1])
-	{
-		print_sorted_env(secret);
-		return (0);
-	}
-	else
-	{
-		error_ret = is_valid_env(args[1]);
-		if (args[1][0] == '=')
-			error_ret = -3;
-		if (error_ret <= 0)
-			return (print_error(error_ret, args[1]));
-		new_env = error_ret == 2 ? 1 : is_in_env(env, args[1]);
-		if (new_env == 0)
-		{
-			if (error_ret == 1)
-				env_add(args[1], env);
-			env_add(args[1], secret);
-		}
-	}
-	return (0);
+	free_arr(tab);
+	return 0;
 }

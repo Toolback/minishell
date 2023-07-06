@@ -45,7 +45,7 @@ typedef struct	s_token
 	t_token_type	type;
 	struct s_token	*prev;
 	struct s_token	*next;
-}				t_token;
+}					t_token;
 
 typedef struct	s_env
 {
@@ -53,18 +53,18 @@ typedef struct	s_env
 	char			*value;
 	char			*(*get_joined_env)(struct s_env*);
 	struct s_env	*next;
-}				t_env;
+}					t_env;
 
 typedef struct s_data
 {
-    t_token     *token;
-    t_env       *env;
-    t_env       *secret_env;
-	int			in;
-	int			out;
-	int			exit;
-	int			ret;
-}               t_data;
+    t_token     	*token;
+    t_env       	*env;
+    t_env       	*secret_env;
+	int				in;
+	int				out;
+	int				exit;
+	int				ret;
+}               	t_data;
 
 
 //	env/
@@ -85,6 +85,7 @@ t_env   *get_last_env(t_env *env_list);
 //
 void    increment_shell_level(t_env *env_list);
 int     add_new_env(t_env *env, char *key, char *value);
+void    sort_env(char **tab, int env_len);
 //	shell_data/
 //  init_data.c
 //
@@ -109,13 +110,15 @@ void    free_arr(char **arr);
 /*
 ** BUILTINS
 */
-int				ft_echo(char **args);
-int				ft_cd(char **args, t_env *env);
-int				ft_pwd(void);
-int				ft_env(t_env *env);
-char			*get_env_name(char *dest, const char *src);
-void		sort_env(char **tab, int env_len);
-void		print_sorted_env(t_env *env);
+int		ft_echo(char **args);
+int		ft_cd(char **args, t_env *env);
+int		ft_pwd(void);
+int		ft_env(t_env *env);
+int		ft_export(t_env *env);
+int		ft_unset(char *key, t_data *data);
+char	*get_env_name(char *dest, const char *src);
+void	sort_env(char **tab, int env_len);
+void	print_sorted_env(t_env *env);
 int		is_valid_env(const char *env);
 
 void    super_parser(t_data *data);

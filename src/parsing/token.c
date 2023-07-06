@@ -117,7 +117,7 @@ void	set_token_type(t_token *token)
 		token->type = pipeline;
 	else if (ft_strchr(token->str, '=') != NULL)
 		token->type = new_variable;
-	else if (ft_strchr(token->str, '$') != NULL && ft_strchr(token->str, '=') == NULL && token->type != simple_quote)
+	else if (ft_strchr(token->str, '$') != NULL && ft_strchr(token->str, '=') == NULL && token->type != simple_quote && ft_strcmp(token->str, "&?") != 0)
 		token->type = variable;
 	else if (token->prev == NULL || token->prev->type == pipeline)
 		token->type = cmd;
@@ -158,11 +158,12 @@ int tokenize(t_data *data, char *line)
     data->token = curr;
     while(line[i])
     {
-        if(line[i] == ' ')
-        {
-            i++;
-            continue;
-        }
+        // if(line[i] == ' ')
+        // {
+        //     i++;
+        //     continue;
+        // }
+		skip_space(line, &i);
         next = set_token_value(line, &i);
         next->prev = curr;
 		set_token_type(next);  
@@ -179,5 +180,10 @@ int tokenize(t_data *data, char *line)
 			break;
 		}
     }
+	if(ft_strcmp(curr->str, "	") == 0)
+	{
+		delete_token(data, curr);
+		// ft_printf("TOOOOKKEKSDF [%s]", curr->str);
+	}
     return (0);
 }

@@ -3,50 +3,50 @@
 
 #include "minishell.h"
 
-static size_t	env_size(char *env)
-{
-	size_t		i;
 
-	i = 0;
-	while (env[i] && env[i] != '=')
-		i++;
-	return (i);
-}
-
-static void		free_node(t_data *mini, t_env *env)
+static void		free_node(t_data *data, t_env *env)
 {
-	if (mini->env == env && env->next == NULL)
+	if (data->env == env && env->next == NULL)
 	{
-		ft_memdel(mini->env->value);
-		mini->env->value = NULL;
-		mini->env->next = NULL;
+		ft_memdel(data->env->key);
+		ft_memdel(data->env->value);
+		data->env->key = NULL;
+		data->env->value = NULL;
+		data->env->next = NULL;
 		return ;
 	}
+	ft_memdel(env->key);
 	ft_memdel(env->value);
 	ft_memdel(env);
 }
 
-int				ft_unset(char **a, t_data *mini)
+int				ft_unset(char *key, t_data *data)
 {
 	t_env	*env;
 	t_env	*tmp;
 
-	env = mini->env;
-	if (!(a[1]))
+	env = data->env;
+	if (!(key))
 		return (0);
-	if (ft_strncmp(a[1], env->value, env_size(env->value)) == 0)
+	if (ft_strcmp(key, env->key) == 0)
 	{
-		mini->env = (env->next) ? env->next : mini->env;
-		free_node(mini, env);
+		data->env = (env->next) ? env->next : data->env;
+		free_node(data, env);
 		return (0);
 	}
 	while (env && env->next)
 	{
-		if (ft_strncmp(a[1], env->next->value, env_size(env->next->value)) == 0)
+		if (ft_strcmp(key, env->next->key) == 0)
 		{
 			tmp = env->next->next;
-			free_node(mini, env->next);
+			free_node(data, env->next);
 			env->next = tmp;
+			t_env *curr2 = env;
+			while(curr2)
+			{
+				ft_printf("ENV -> [%s]\n", curr2->get_joined_env(curr2));
+				curr2 = curr2->next;
+			}
 			return (0);
 		}
 		env = env->next;

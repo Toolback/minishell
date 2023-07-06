@@ -7,7 +7,7 @@ TODO :
 
 
 
-valgrind --leak-check=full -s --show-leak-kinds=all --track-origins=yes --verbose
+valgrind --leak-check=full -s --show-leak-kinds=all --track-origins=yes --verbose ./minishell
 
 
 ------ HereDoc Test ------

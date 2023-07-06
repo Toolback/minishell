@@ -3,9 +3,11 @@
 char	*get_joined_env(t_env *curr_env)
 {
 	char		*res;
-
-	res = ft_strjoin(curr_env->key, "=");
-	res = ft_strjoin(res, curr_env->value);
+	char		*temp;
+	
+	temp = ft_strjoin(curr_env->key, "=");
+	res = ft_strjoin(temp, curr_env->value);
+	free(temp);
 	return (res);
 }
 

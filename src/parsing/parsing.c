@@ -35,6 +35,18 @@ int sanitise_args(char *line)
     return (0);
 }
 
+void    delete_until_pipe(t_token *token, t_data *data)
+{
+    t_token *curr;
+
+    curr = token;
+    while (ft_strcmp(curr->str, "|") != 0)
+    {
+        delete_token(data, curr);
+        curr = curr->next;
+    }
+}
+
 // FREE LEAKS WIP
 char    *get_bin(char *cmd, t_env *env_list)
 {
@@ -64,43 +76,6 @@ char    *get_bin(char *cmd, t_env *env_list)
     free_arr(env_arr);
     return (NULL);
 }
-
-// int is_heredoc_delimiter(char *delimiter, char *line)
-// {
-//     // here doc delimiter present
-//     int i;
-//     int j;
-//     int res;
-
-//     i = 0;
-//     res = 0;
-//     while(line[i])
-//     {
-//         if (res == 0)
-//             j = 0;
-//         // if(delimiter[j] != '\0')
-//         // {
-//             if (line[i] == delimiter[j])
-//             {
-//                 // ft_printf("\nSameCaract J Increment [%d], for i [%d] (is heredoc deliniter)\n",j,i);
-//                 res = 1;
-//                 j++;
-//             }
-//             else
-//                 res = 0;
-//         // }
-//         // else  //arrived to end of delimiter, match found
-//         if(delimiter[j] == '\0')
-//         {
-//             // ft_printf("\ndELIMITER FOUND !!!! (is heredoc deliniter)\n");
-//             return (1);
-//         }
-//         i++;
-//     }
-//     // ft_printf("\nNO DELIMITER FOUND (is heredoc deliniter [%s])\n", delimiter);
-//     // no delimiter 
-//     return (0);
-// }
 
 int handle_heredoc(t_data *data, t_token *curr)
 {
@@ -142,6 +117,8 @@ int is_builtin_cmd(char *cmd)
         return (1);
     if (ft_strcmp("exit", cmd) == 0)
         return (1);
+    if (ft_strcmp("$?", cmd) == 0)
+        return (1);
     return (0);
 }
 
@@ -167,7 +144,7 @@ void super_parser(t_data *data)
             ft_putendl_fd("Error : Tokenize ", STDERR);
         // add_history(line);
         t_token *curr = data->token;
-        while(curr)
+        while(curr != NULL)
         {
             if (curr->type == new_variable) // new env received, add it to local env
             {
@@ -185,9 +162,21 @@ void super_parser(t_data *data)
                     continue;
                 }
             }
+            else if (ft_strcmp(curr->str, "$?") == 0)
+            {
+                ft_printf("return value is : [%d]\n", data->ret);
+                delete_token(data, curr);
+                break;
+            }
+            // else if (ft_strcmp(curr->str, "    ") == 0 || ft_strcmp(curr->str, " ") == 0)
+            // {
+            //     ft_printf("ICILAAAA");
+            //     delete_token(data, curr);
+            //     break;
+            // }
             else if (curr->type == variable) // variable to replace by env in cmd line
             {
-                            ft_printf("\nCUURR [%s]\n", curr->str);
+                            // ft_printf("\nCUURR [%s]\n", curr->str);
                 t_env *curr_env = get_env_with_key((curr->str + 1), data->env);
                 if (curr_env == NULL) // no env occurance found, replace token variable with empty string 
                 {
@@ -199,18 +188,27 @@ void super_parser(t_data *data)
                 {
                     free(curr->str);
                     curr->str = curr_env->value;
-
                 }
             }
+
             else if (curr->type == cmd && is_builtin_cmd(curr->str) == 0 && ft_strcmp(curr->str, "") != 0) // bin received (not builtin), check for path
             // else if (curr->type == cmd && ft_strcmp(curr->str, "") != 0) // bin received (not builtin), check for path
             {
                 if (ft_strcmp(curr->str, "export") == 0) // exporting new ENV Variables
                 {
-                    add_new_env(data->env, parse_env_key(curr->next->str), parse_env_value(curr->next->str));
-                    delete_token(data, curr);
-                    delete_token(data, curr->next);
-                    break; // Bash only parse 1 cmd when adding ENV var 
+                    if (curr->next == NULL)
+                    {
+                        ft_export(data->env);
+                        delete_token(data, curr);
+                        break;
+                    }
+                    else 
+                    {
+                        add_new_env(data->env, parse_env_key(curr->next->str), parse_env_value(curr->next->str));
+                        delete_token(data, curr);
+                        delete_token(data, curr->next);
+                        break; // Bash only parse 1 cmd when adding ENV var 
+                    }
                 }
                 else 
                 {
@@ -230,8 +228,10 @@ void super_parser(t_data *data)
                     }
                     if(access(curr->str, X_OK) == -1) // path is not executable
                     {
-                        free(curr->str);
+                        // free(curr->str);
                         curr->str = "Cmd not found or executable";
+                        // delete_token(data, curr);
+                        break ;
                     }
                 }
             }
@@ -243,6 +243,11 @@ void super_parser(t_data *data)
                 curr = curr->next;
                 break;
             }
+            else if (curr->type == cmd && ft_strcmp(curr->str, "unset") == 0)
+            {
+                ft_unset(curr->next->str, data);
+            }
+
             curr = curr->next;
         } 
         while(heredoc_open == 1)
@@ -250,14 +255,14 @@ void super_parser(t_data *data)
 
 
         curr = data->token;
-        //int i = 0;
         // return; // NATH EST PASSÉ PAR LA tmtc
-        // while(curr)
-        // {
-        //     ft_printf("\ncmd id -> [%d] | value -> [%s] | type -> [%d]\n", i, curr->str, curr->type);
-        //     i++;
-        //     curr = curr->next;
-        // } 
+        int i = 0;
+        while(curr)
+        {
+            ft_printf("\ncmd id -> [%d] | value -> [%s] | type -> [%d]\n", i, curr->str, curr->type);
+            i++;
+            curr = curr->next;
+        } 
         // t_env *curr2 = data->env;
         // while(curr2)
         // {
