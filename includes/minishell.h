@@ -110,7 +110,7 @@ void    free_arr(char **arr);
 ** BUILTINS
 */
 int				ft_echo(char **args);
-//int				ft_cd(char **args, t_env *env);
+int				ft_cd(char **args, t_env *env);
 int				ft_pwd(void);
 int				ft_env(t_env *env);
 char			*get_env_name(char *dest, const char *src);
@@ -120,6 +120,9 @@ int		is_valid_env(const char *env);
 
 void    super_parser(t_data *data);
 void    handle_signal(int sig);
-void    super_executer(t_data data);
+void    super_executer(t_data *data);
+
+
+int add_new_env(t_env *env, char *key, char *value);
 
 #endif

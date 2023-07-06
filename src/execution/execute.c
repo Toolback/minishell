@@ -5,13 +5,13 @@
 #define MAX_LINE 1024
 
 // Fonction pour exécuter une commande
-void execute_command(t_data data)
+void execute_command(t_data *data)
 {
     // Déclare des descripteurs de fichier et des variables pour les entrées et sorties
     int fds[2];
     int in = 0;
     int out;
-    t_token *t = data.token;
+    t_token *t = data->token;
     pid_t pid;
     // Compteur pour les processus enfants
     int child_processes = 0;
@@ -124,8 +124,8 @@ void execute_command(t_data data)
                 else if (strcmp(args[0], "cd") == 0)
                 {
                     // Appelle ft_echo avec les arguments appropriés.
-                    // printf("tezt");
-                    //ft_cd(args, data.env);
+                    printf("tezt");
+                    ft_cd(args, data->env);
                 }
                 else if (strcmp(args[0], "pwd") == 0)
                 {
@@ -137,7 +137,7 @@ void execute_command(t_data data)
                 {
                     // Appelle ft_echo avec les arguments appropriés.
                     // printf("tezt");
-                    ft_env(data.env);
+                    ft_env(data->env);
                 }
 
                 else if (execve(args[0], args, envp) == -1)
@@ -175,7 +175,7 @@ void execute_command(t_data data)
     }
 }
 
-void super_executer(t_data data)
+void super_executer(t_data *data)
 {
     execute_command(data);
 }

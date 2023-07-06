@@ -2,6 +2,48 @@
 
 #include "minishell.h"
 
+char		*get_env_name(char *dest, const char *src)
+{
+	int		i;
+
+	i = 0;
+	while (src[i] && src[i] != '=' && ft_strlen(src) < 4096)
+	{
+		dest[i] = src[i];
+		i++;
+	}
+	dest[i] = '\0';
+	return (dest);
+}
+
+int add_new_enve(t_env *env, char *key, char *value)
+{
+    t_env *new;
+    t_env *list;
+    // ft_printf("KEEEEEY [%s]", key);
+    list = get_last_env(env);
+    if (!(new = malloc(sizeof(t_env))))
+		return (1);
+    new->key = key;
+    new->value = value;
+    new->get_joined_env = &get_joined_env;
+    new->next = NULL;
+    list->next = new;
+    return (0);
+}
+
+
+// IS IN ENV
+
+int is_in_env(t_env *env, char *key)
+{
+	while(env && ft_strcmp(key, env->key) != 0)
+		env = env->next;
+	if (env)
+		return (1);
+	return (0);
+}
+
 static void		print_error(char **args)
 {
 	ft_putstr_fd("cd: ", 2);
@@ -18,25 +60,15 @@ static void		print_error(char **args)
 static char		*get_env_path(t_env *env, const char *var, size_t len)
 {
 	char	*oldpwd;
-	int		i;
-	int		j;
-	int		s_alloc;
+	char *tmp;
+
+	tmp = env->get_joined_env(env);
 
 	while (env && env->next != NULL)
 	{
-		if (ft_strncmp(env->value, var, len) == 0)
+		if (ft_strncmp(tmp, var, len) == 0)
 		{
-			s_alloc = ft_strlen(env->value) - len;
-			if (!(oldpwd = malloc(sizeof(char) * s_alloc + 1)))
-				return (NULL);
-			i = 0;
-			j = 0;
-			while (env->value[i++])
-			{
-				if (i > (int)len)
-					oldpwd[j++] = env->value[i];
-			}
-			oldpwd[j] = '\0';
+			oldpwd = env->value;
 			return (oldpwd);
 		}
 		env = env->next;
@@ -54,7 +86,7 @@ static int		update_oldpwd(t_env *env)
 	if (!(oldpwd = ft_strjoin("OLDPWD=", cwd)))
 		return (1);
 	if (is_in_env(env, oldpwd) == 0)
-		env_add(oldpwd, env);
+		add_new_enve(env, "OLDPWD", cwd);
 	ft_memdel(oldpwd);
 	return (0);
 }
